@@ -2,6 +2,7 @@ import BombieriVinogradov.Assembly.ResearchMode
 import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
 import BombieriVinogradov.Proof.LargeSieve.CharacterOrthogonality
+import BombieriVinogradov.Proof.LargeSieve.GaussSum
 
 /-!
 # Public library root
