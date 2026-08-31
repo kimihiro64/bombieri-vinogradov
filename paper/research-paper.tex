@@ -1,0 +1,88 @@
+\documentclass[11pt]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[nopatch=footnote]{microtype}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{linkblue}{HTML}{174A7E}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue,
+  pdftitle={Bombieri-Vinogradov in Lean},
+  pdfauthor={Jonas Whidden}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Bombieri-Vinogradov in Lean}
+\author{Jonas Whidden}
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+A source-faithful Lean 4 formalization of the Bombieri-Vinogradov theorem in the level-of-distribution form used by modern bounded-prime-gap arguments.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction}
+
+Explain the problem's significance, research audience, source relationship,
+and the exact scope of the result. Do not claim the project is complete while
+the public Challenge/Solution surface is still the template sentinel.
+
+\section{Statement of the problem}
+
+\textbf{The Bombieri-Vinogradov theorem.} For every real theta < 1/2 and every real A >= 1, there exists a real c > 0 such that for every real x >= 3, the sum over 1 <= q <= floor(x\textasciicircum{}theta) of the maximum over reduced residue classes a modulo q of |pi(x; q, a) - pi(x)/phi(q)| is at most c*x/(log x)\textasciicircum{}A.
+
+Define every nonstandard object and state all quantifiers, hypotheses,
+endpoints, and exceptional cases.
+
+\section{Relation to the literature}
+
+Give a precise source and prior-formalization account. Distinguish direct
+formalization, adaptation, independent proof, background, and original work.
+
+\section{Proof architecture}
+
+Describe the mathematical reductions and how they compose. Replace this
+scaffold with the actual proof, not a development chronology.
+
+\section{Formalization and verification}
+
+Map each headline theorem to its Lean declaration. Describe dependency pins,
+the Challenge/Solution trust boundary, kernel checks, Comparator/NanoDa replay,
+and any exact finite certificates or computations.
+
+\section{Limitations and review status}
+
+State known divergences, omitted material, automation use, and the review that
+actually occurred. Mechanical checks are not independent expert review.
+
+\section*{Acknowledgements}
+
+Credit mathematical sources, libraries, tools, contributors, and reviewers.
+
+\begin{thebibliography}{9}
+
+\bibitem{PrimarySource}
+Replace with the complete primary-source citation.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,35 @@
+[project]
+name = "research-project-tools"
+version = "0.1.0"
+description = "Reproducible checks and experiments for a Lean mathematics project"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "mypy==1.17.1",
+  "pytest==8.4.1",
+  "ruff==0.12.11",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = [".lake", "docbuild/.lake", "paper/build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "C4", "PIE", "RUF", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["scripts", "test/python"]
+exclude = '(^|/)(\.lake|paper/build)/'
+
+[tool.pytest.ini_options]
+testpaths = ["test/python"]
+addopts = "-q"

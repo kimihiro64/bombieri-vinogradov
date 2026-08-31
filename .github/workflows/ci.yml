@@ -1,0 +1,198 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  metadata-and-boundary:
+    name: Metadata, source policy, and private boundary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b
+        with:
+          ruby-version: "3.3.12"
+          bundler-cache: true
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+      - name: Test the Palomar metadata validator
+        run: ruby test/validate_formalization_test.rb
+      - name: Validate lifecycle metadata and public source boundary
+        run: python scripts/check.py --profile fast
+      - name: Detect the repository licence
+        run: |
+          bundle exec licensee detect LICENSE --json --no-packages --no-readme > "$RUNNER_TEMP/license.json"
+          ruby -rjson -e '
+            report = JSON.parse(File.read(ARGV.fetch(0)))
+            identifiers = report.fetch("licenses").map { |item| item.fetch("spdx_id") }
+            abort "LICENSE is not detected exactly as Apache-2.0" unless identifiers == ["Apache-2.0"]
+          ' "$RUNNER_TEMP/license.json"
+
+  python:
+    name: Python format, lint, types, and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install pinned development tools
+        run: python -m pip install --disable-pip-version-check -e '.[dev]'
+      - name: Check formatting
+        run: python -m ruff format --check scripts test/python
+      - name: Lint
+        run: python -m ruff check scripts test/python
+      - name: Type-check
+        run: python -m mypy scripts test/python
+      - name: Test
+        run: python -m pytest
+
+  build:
+    name: Build with Lean
+    needs: [metadata-and-boundary, python]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          build: true
+
+  docs:
+    name: Build API documentation
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          build: false
+      - name: Build doc-gen4 output
+        working-directory: docbuild
+        env:
+          MATHLIB_NO_CACHE_ON_UPDATE: "1"
+          DISABLE_EQUATIONS: "1"
+          DOCGEN_SRC: github
+        run: lake build BombieriVinogradov:docs
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: api-documentation
+          path: docbuild/.lake/build/doc
+          if-no-files-found: error
+
+  comparator:
+    name: Check statement against solution
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          build: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
+        with:
+          go-version: "1.24.0"
+          cache: false
+      - name: Run pinned Comparator toolchain
+        run: ./scripts/verify-comparator.sh
+
+  paper:
+    name: Build research paper
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install paper toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            lmodern \
+            poppler-utils \
+            texlive-fonts-recommended \
+            texlive-latex-base \
+            texlive-latex-extra \
+            texlive-latex-recommended
+      - name: Build and inspect the paper
+        run: |
+          mkdir -p paper/build
+          git log -1 --format=%ct -- paper/research-paper.tex > paper/build/source-date-epoch
+          read -r SOURCE_DATE_EPOCH < paper/build/source-date-epoch
+          export SOURCE_DATE_EPOCH
+          export FORCE_SOURCE_DATE=1
+          export TZ=UTC
+          pdflatex -interaction=nonstopmode -halt-on-error -file-line-error \
+            -output-directory=paper/build paper/research-paper.tex
+          pdflatex -interaction=nonstopmode -halt-on-error -file-line-error \
+            -output-directory=paper/build paper/research-paper.tex
+          if grep -F \
+            -e 'undefined references' \
+            -e 'undefined citations' \
+            -e 'Rerun to get cross-references right' \
+            paper/build/research-paper.log
+          then
+            exit 1
+          fi
+          test -s paper/build/research-paper.pdf
+          pdfinfo paper/build/research-paper.pdf
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: research-paper
+          path: paper/build/research-paper.pdf
+          if-no-files-found: error
+          retention-days: 90
+
+  submission-link:
+    name: Check submission link
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Require the current Palomar form and reject the retired form
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          form = "https://submit.palomar-registry.org/"
+          retired = re.compile(r"PalomarSubmission/issues/new")
+          failed = False
+          if form not in pathlib.Path("README.md").read_text():
+              print(f"README.md: does not name {form}")
+              failed = True
+          for document in sorted(pathlib.Path(".").rglob("*.md")):
+              if ".lake" in document.parts:
+                  continue
+              for number, line in enumerate(document.read_text().splitlines(), 1):
+                  if retired.search(line):
+                      print(f"{document}:{number}: retired Palomar form")
+                      failed = True
+          raise SystemExit(failed)
+          PY
