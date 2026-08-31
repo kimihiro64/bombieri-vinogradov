@@ -1,5 +1,7 @@
 import BombieriVinogradov.Assembly.ResearchMode
+import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
+import BombieriVinogradov.Proof.LargeSieve.CharacterOrthogonality
 
 /-!
 # Public library root
