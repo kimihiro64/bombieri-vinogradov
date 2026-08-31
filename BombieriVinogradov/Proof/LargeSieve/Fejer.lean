@@ -121,6 +121,12 @@ theorem phaseDistance_pos {x : Real} (hx0 : Ne x 0) (hx1 : |x| < 1) :
 def fejerKernel (N : Nat) (x : Real) : Real :=
   (2 / (N : Real)) * ‖phaseSum N x‖ ^ 2
 
+@[simp]
+theorem fejerKernel_neg (N : Nat) (x : Real) :
+    fejerKernel N (-x) = fejerKernel N x := by
+  unfold fejerKernel
+  rw [norm_phaseSum_neg]
+
 theorem fejerKernel_nonneg (N : Nat) (x : Real) :
     0 <= fejerKernel N x := by
   unfold fejerKernel

@@ -1,14 +1,7 @@
 import BombieriVinogradov.Assembly.ResearchMode
 import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
-import BombieriVinogradov.Proof.LargeSieve.Additive
-import BombieriVinogradov.Proof.LargeSieve.CharacterOrthogonality
-import BombieriVinogradov.Proof.LargeSieve.Farey
-import BombieriVinogradov.Proof.LargeSieve.FareyRow
-import BombieriVinogradov.Proof.LargeSieve.Fejer
-import BombieriVinogradov.Proof.LargeSieve.GaussSum
-import BombieriVinogradov.Proof.LargeSieve.Packing
-import BombieriVinogradov.Proof.LargeSieve.Schur
+import BombieriVinogradov.Proof.LargeSieve.All
 
 /-!
 # Public library root
