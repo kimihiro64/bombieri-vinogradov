@@ -228,14 +228,11 @@ class ValidateFormalizationTest < Minitest::Test
   end
 end
 
-class MetadataWorkflowRoutingTest < Minitest::Test
+class MetadataWorkflowLifecycleTest < Minitest::Test
   WORKFLOW = File.read(Pathname(__dir__).parent / ".github/workflows/ci.yml")
-  CONDITIONS = WORKFLOW.lines.map(&:strip).grep(/\Aif:/).freeze
 
-  def test_only_the_canonical_repository_uses_template_mode
-    assert_includes CONDITIONS,
-                    "if: github.repository == 'PalomarRegistry/BombieriVinogradov'"
-    assert_includes CONDITIONS,
-                    "if: github.repository != 'PalomarRegistry/BombieriVinogradov'"
+  def test_workflow_uses_content_based_lifecycle_validation
+    assert_includes WORKFLOW, "python scripts/check.py --profile fast"
+    refute_match(/github\.repository\s*[!=]=/, WORKFLOW)
   end
 end

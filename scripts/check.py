@@ -219,6 +219,10 @@ def check_metadata(root: Path, *, release: bool) -> None:
             raise CheckFailure("Ruby is required for release metadata validation")
         print("metadata: skipped Ruby validator (Ruby not installed)")
         return
+    test_path = root / "test" / "validate_formalization_test.rb"
+    if test_path.is_file():
+        run((ruby, "test/validate_formalization_test.rb"), root)
+        print("metadata validator tests: clean")
     command = [ruby, "scripts/validate-formalization.rb"]
     if template_mode:
         command.append("--expect-template")
