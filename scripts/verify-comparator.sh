@@ -9,7 +9,8 @@ lean4export_dir="$cache_root/lean4export"
 nanoda_dir="$cache_root/nanoda"
 
 comparator_commit=68a064109f01c08f47c8edc9f51d6a2bbffaa188
-lean4export_commit=4e7915201d3f9f04470d9eae002fa695f7cdc589
+lean4export_repository=https://github.com/leanprover/lean4export.git
+lean4export_commit=15f6055e299ad5b89345e533cc2192f4cc00f659
 landrun_commit=811cfff51ceaf3d9843708aa6d22e9b84ccac8b4
 nanoda_commit=68d5ca9db226849b41a6fff59d796ff19d0a8840
 
@@ -49,12 +50,18 @@ checkout_exact() {
   local commit=$3
   if [ ! -d "$destination/.git" ]; then
     git clone --filter=blob:none "$repository" "$destination"
+  else
+    git -C "$destination" remote set-url origin "$repository"
+  fi
+  if [ "$(git -C "$destination" remote get-url origin)" != "$repository" ]; then
+    echo "error: cached dependency $destination has the wrong origin" >&2
+    exit 1
   fi
   git -C "$destination" fetch --depth 1 origin "$commit"
   git -C "$destination" checkout --detach "$commit"
 }
 
-checkout_exact https://github.com/leanprover/lean4export.git "$lean4export_dir" "$lean4export_commit"
+checkout_exact "$lean4export_repository" "$lean4export_dir" "$lean4export_commit"
 
 if [ ! -f "$lean4export_dir/lean-toolchain" ]; then
   echo "error: pinned lean4export revision $lean4export_commit has no lean-toolchain file" >&2
@@ -64,11 +71,15 @@ fi
 
 project_toolchain=$(tr -d '[:space:]' < "$repository_root/lean-toolchain")
 lean4export_toolchain=$(tr -d '[:space:]' < "$lean4export_dir/lean-toolchain")
-if [ "$project_toolchain" != "$lean4export_toolchain" ]; then
-  echo "error: project toolchain $project_toolchain does not match" >&2
-  echo "the pinned lean4export toolchain $lean4export_toolchain" >&2
-  echo "update lean4export_commit when changing lean-toolchain, then review" >&2
-  echo "Comparator and NanoDa compatibility with the export format" >&2
+if [ "$lean4export_toolchain" != "leanprover/lean4:v4.33.0" ]; then
+  echo "error: pinned upstream lean4export revision declares" >&2
+  echo "$lean4export_toolchain instead of reviewed toolchain leanprover/lean4:v4.33.0" >&2
+  exit 1
+fi
+if [ "$project_toolchain" != "leanprover/lean4:v4.33.1" ]; then
+  echo "error: project toolchain $project_toolchain is not the reviewed" >&2
+  echo "Lean patch release leanprover/lean4:v4.33.1" >&2
+  echo "review lean4export, Comparator and NanoDa compatibility before changing it" >&2
   exit 1
 fi
 
@@ -78,11 +89,20 @@ checkout_exact https://github.com/robsimmons/nanoda_lib.git "$nanoda_dir" "$nano
 GOBIN="$bin_dir" go install "github.com/zouuup/landrun/cmd/landrun@$landrun_commit"
 
 (cd "$comparator_dir" && lake build comparator)
-(cd "$lean4export_dir" && lake build lean4export)
+# The upstream v4.33.0 source is compatible with Lean v4.33.1. Build that
+# untouched source with the project's exact patch release so the exporter can
+# read this repository's .olean format; no fork or source patch is involved.
+(cd "$lean4export_dir" && ELAN_TOOLCHAIN="$project_toolchain" lake build lean4export)
 (cd "$nanoda_dir" && cargo build --release --locked)
 
 cd "$repository_root"
+lake update
 lake exe cache get
+# Build through the repository's sequential default target before Comparator
+# requests Challenge and Solution directly. On CI this is normally an
+# up-to-date check against the restored build artifact; on a fresh verifier it
+# prevents large proof modules from elaborating concurrently.
+lake build
 PALOMAR_LANDRUN_BIN="$bin_dir/landrun" \
 COMPARATOR_LEAN4EXPORT="$lean4export_dir/.lake/build/bin/lean4export" \
 COMPARATOR_NANODA="$nanoda_dir/target/release/nanoda_bin" \

@@ -62,6 +62,11 @@ python scripts/check.py --profile release
 
 The Comparator command requires a supported Linux host with Git, Go, Ruby,
 Rust/Cargo, Python, and Landrun. GitHub CI runs the pinned verifier stack.
+It pins the reviewed upstream `leanprover/lean4export` v4.33.0 source and
+compiles that source unchanged with this repository's exact Lean v4.33.1
+toolchain via `ELAN_TOOLCHAIN`. This is the known-good Robin1984 Palomar
+configuration and keeps the exporter aligned with this repository's `.olean`
+format without a fork or machine-local patch.
 
 ## Paper
 
