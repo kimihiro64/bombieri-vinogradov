@@ -1,8 +1,16 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
-from scripts.check import is_private_path, lean_imports, strip_lean_comments, tracked_public_size
+from scripts.check import (
+    check_lean_sources,
+    is_private_path,
+    lean_imports,
+    public_candidate_paths,
+    strip_lean_comments,
+    tracked_public_size,
+)
 from scripts.import_graph import detect_cycles, transitive_dependents
 
 
@@ -46,3 +54,27 @@ def test_ignored_artifact_does_not_affect_tracked_size(tmp_path: Path) -> None:
     tracked.write_bytes(b"abc")
     ignored.write_bytes(b"x" * 10000)
     assert tracked_public_size(tmp_path, ["tracked.txt"]) == 3
+
+
+def test_ignored_private_lean_does_not_affect_public_policy(tmp_path: Path) -> None:
+    (tmp_path / ".gitignore").write_text(".research/\n", encoding="utf-8")
+    (tmp_path / "Example.lean").write_text(
+        "/-! Public module. -/\nimport Mathlib.Data.Nat.Basic\n",
+        encoding="utf-8",
+    )
+    deleted = tmp_path / "Deleted.lean"
+    deleted.write_text("axiom obsolete : False\n", encoding="utf-8")
+    private = tmp_path / ".research" / "Private.lean"
+    private.parent.mkdir()
+    private.write_text("axiom privateLeak : False\n", encoding="utf-8")
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "add", ".gitignore", "Example.lean", "Deleted.lean"],
+        cwd=tmp_path,
+        check=True,
+    )
+    deleted.unlink()
+    candidates = public_candidate_paths(tmp_path)
+    assert ".research/Private.lean" not in candidates
+    assert "Deleted.lean" not in candidates
+    check_lean_sources(tmp_path)

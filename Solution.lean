@@ -1,12 +1,12 @@
 import BombieriVinogradov
 
 /-!
-# Proved solution
+# Research-mode solution placeholder
 
-This module may import the full proof development. Comparator checks that the
-declaration below has exactly the same statement as its counterpart in
-`Challenge.lean` and uses only the permitted axioms.
+The declaration below proves only the explicitly temporary research
+placeholder. It is not the Bombieri-Vinogradov theorem.
 -/
 
-theorem BombieriVinogradov.main_result (n : ℕ) : n + n = 2 * n := by
-  exact assembled_main_result n
+theorem BombieriVinogradov.research_placeholder :
+    BombieriVinogradov.FormalizationTargetPending := by
+  exact BombieriVinogradov.assembledResearchPlaceholder

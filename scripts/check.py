@@ -64,6 +64,17 @@ def tracked_paths(root: Path) -> list[str]:
     return [item.replace("\\", "/") for item in output.split("\0") if item]
 
 
+def public_candidate_paths(root: Path) -> list[str]:
+    """Return tracked and nonignored untracked paths visible to public checks."""
+    output = run(
+        ("git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"),
+        root,
+        capture=True,
+    )
+    normalized = {item.replace("\\", "/") for item in output.split("\0") if item}
+    return sorted(relative for relative in normalized if (root / relative).is_file())
+
+
 def is_private_path(path: str) -> bool:
     """Return whether a repository-relative path belongs to the private layer."""
     normalized = path.strip("/").replace("\\", "/")
@@ -151,9 +162,11 @@ def lean_imports(code: str) -> list[str]:
 def check_lean_sources(root: Path) -> None:
     """Check public Lean source policy without requiring a Lean runtime."""
     failures: list[str] = []
-    files = sorted(
-        path for path in root.rglob("*.lean") if ".lake" not in path.relative_to(root).parts
-    )
+    files = [
+        root / relative
+        for relative in public_candidate_paths(root)
+        if relative.endswith(".lean") and (root / relative).is_file()
+    ]
     for path in files:
         relative = path.relative_to(root).as_posix()
         source = path.read_text(encoding="utf-8")

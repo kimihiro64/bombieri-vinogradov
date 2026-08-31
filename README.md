@@ -13,11 +13,11 @@ For every real theta < 1/2 and every real A >= 1, there exists a real c > 0 such
 ## Current status
 
 This repository begins in research mode. `Challenge.lean` and `Solution.lean`
-initially contain a clearly marked wiring theorem so that Lean, documentation,
-and Comparator CI run from the first public commit. They are not the project's
-advertised mathematical result. Replace them with the exact headline
-declarations only after those statements have been audited and the proved
-Solution declarations exist.
+currently contain a clearly marked project-specific placeholder so that Lean,
+documentation, and Comparator CI run while the proof remains open. It is not
+the Bombieri-Vinogradov theorem. The exact target proposition already lives in
+`BombieriVinogradov/Definitions/Statement.lean`; the Challenge/Solution surface
+will be activated only after a proof of that proposition exists.
 
 The release state is visible mechanically:
 

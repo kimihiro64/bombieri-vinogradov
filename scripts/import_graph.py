@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if __package__ in {None, ""}:
     sys.path.insert(0, str(ROOT))
 
-from scripts.check import lean_imports, strip_lean_comments  # noqa: E402
+from scripts.check import lean_imports, public_candidate_paths, strip_lean_comments  # noqa: E402
 
 LEAN_RECOMMENDED_LINES: Final[int] = 500
 LEAN_MAX_LINES: Final[int] = 900
@@ -43,8 +43,11 @@ def library_namespace(root: Path) -> str:
     """Find the one project library root module."""
     candidates = sorted(
         path.stem
-        for path in root.glob("*.lean")
-        if path.name not in {"Challenge.lean", "Solution.lean"} and (root / path.stem).is_dir()
+        for relative in public_candidate_paths(root)
+        if (path := Path(relative)).parent == Path(".")
+        and path.suffix == ".lean"
+        and path.name not in {"Challenge.lean", "Solution.lean"}
+        and (root / path.stem).is_dir()
     )
     if len(candidates) != 1:
         raise ArchitectureFailure(
@@ -55,12 +58,22 @@ def library_namespace(root: Path) -> str:
 
 def module_map(root: Path, namespace: str) -> dict[str, Path]:
     """Map owned Lean module names to source paths."""
-    result = {
-        "Challenge": root / "Challenge.lean",
-        "Solution": root / "Solution.lean",
-        namespace: root / f"{namespace}.lean",
+    candidates = set(public_candidate_paths(root))
+    required = {
+        "Challenge": "Challenge.lean",
+        "Solution": "Solution.lean",
+        namespace: f"{namespace}.lean",
     }
-    for path in sorted((root / namespace).rglob("*.lean")):
+    missing = sorted(relative for relative in required.values() if relative not in candidates)
+    if missing:
+        raise ArchitectureFailure("required public Lean paths are absent: " + ", ".join(missing))
+    result = {module: root / relative for module, relative in required.items()}
+    owned_paths = sorted(
+        root / relative
+        for relative in candidates
+        if relative.startswith(f"{namespace}/") and relative.endswith(".lean")
+    )
+    for path in owned_paths:
         module = ".".join(path.relative_to(root).with_suffix("").parts)
         result[module] = path
     return result
@@ -185,7 +198,12 @@ def audit_architecture(root: Path) -> dict[str, object]:
             failures.append(f"{module}: {lines} Lean lines exceeds hard limit {LEAN_MAX_LINES}")
         elif lines > LEAN_RECOMMENDED_LINES:
             warnings.append(f"{module}: {lines} Lean lines; split before {LEAN_MAX_LINES}")
-    for path in sorted((root / "scripts").rglob("*.py")):
+    python_paths = sorted(
+        root / relative
+        for relative in public_candidate_paths(root)
+        if relative.startswith("scripts/") and relative.endswith(".py")
+    )
+    for path in python_paths:
         lines = line_count(path)
         relative = path.relative_to(root).as_posix()
         if lines > PYTHON_MAX_LINES:

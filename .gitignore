@@ -8,6 +8,7 @@
 /paper/build/
 __pycache__/
 *.pyc
+*.egg-info/
 
 # Local research and AI working layer. These paths must never be tracked.
 /.agents/

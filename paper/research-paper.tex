@@ -15,7 +15,7 @@
   linkcolor=linkblue,
   citecolor=linkblue,
   urlcolor=linkblue,
-  pdftitle={Bombieri-Vinogradov in Lean},
+  pdftitle={Formalizing the Bombieri--Vinogradov Theorem in Lean},
   pdfauthor={Jonas Whidden}
 }
 
@@ -28,60 +28,168 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\title{Bombieri-Vinogradov in Lean}
+\title[Formalizing Bombieri--Vinogradov in Lean]{Formalizing the Bombieri--Vinogradov Theorem in Lean:\\
+Project Specification and Proof Architecture}
 \author{Jonas Whidden}
 \date{\today}
 
 \begin{document}
 
 \begin{abstract}
-A source-faithful Lean 4 formalization of the Bombieri-Vinogradov theorem in the level-of-distribution form used by modern bounded-prime-gap arguments.
+We specify a source-faithful Lean 4 formalization of the
+Bombieri--Vinogradov theorem in the level-of-distribution form used by modern
+bounded-prime-gap arguments.  This document fixes the target statement, its
+relationship to the literature, and the intended large-sieve proof
+architecture.  The definitions and target proposition compile, but the
+Bombieri--Vinogradov proof itself remains open at this stage.
 \end{abstract}
 
 \maketitle
 
 \section{Introduction}
 
-Explain the problem's significance, research audience, source relationship,
-and the exact scope of the result. Do not claim the project is complete while
-the public Challenge/Solution surface is still the template sentinel.
+The Bombieri--Vinogradov theorem says, roughly, that primes are equidistributed
+on average among reduced residue classes for moduli almost as large as
+$x^{1/2}$.  It replaces an unavailable pointwise estimate of comparable
+strength with an averaged result and is a central input to sieve arguments.
+In particular, the level-of-distribution formulation below is the hypothesis
+used in Maynard's bounded-prime-gap framework \cite{Maynard2015} and in the
+downstream Lean project \cite{PrimeGapsLib}.
+
+The present project targets the analytic theorem itself.  It does not reprove
+the bounded-gap consequence, which is already the responsibility of the
+downstream development.
 
 \section{Statement of the problem}
 
-\textbf{The Bombieri-Vinogradov theorem.} For every real theta < 1/2 and every real A >= 1, there exists a real c > 0 such that for every real x >= 3, the sum over 1 <= q <= floor(x\textasciicircum{}theta) of the maximum over reduced residue classes a modulo q of |pi(x; q, a) - pi(x)/phi(q)| is at most c*x/(log x)\textasciicircum{}A.
+For $x\in\mathbb R$, let $\pi(x)$ be the number of primes at most $x$.
+For $q\in\mathbb N$ and $a\in(\mathbb Z/q\mathbb Z)^\times$, let
+$\pi(x;q,a)$ be the number of primes $p\leq x$ whose residue modulo $q$ is
+$a$, and let $\varphi(q)$ be Euler's totient.
 
-Define every nonstandard object and state all quantifiers, hypotheses,
-endpoints, and exceptional cases.
+\begin{theorem}[Bombieri--Vinogradov target]\label{thm:bv}
+For every $\theta\in\mathbb R$ with $\theta<\tfrac12$ and every
+$A\in\mathbb R$ with $A\geq1$, there is a $c\in\mathbb R$, $c>0$, such that
+for every $x\in\mathbb R$, $x\geq3$,
+\[
+  \sum_{1\leq q\leq\lfloor x^\theta\rfloor}
+  \max_{a\in(\mathbb Z/q\mathbb Z)^\times}
+  \left|\pi(x;q,a)-\frac{\pi(x)}{\varphi(q)}\right|
+  \leq \frac{c x}{(\log x)^A}.
+\]
+\end{theorem}
+
+The strict inequality $\theta<\tfrac12$, the lower bounds $A\geq1$ and
+$x\geq3$, and the inclusive modulus cutoff are part of the formal target.
 
 \section{Relation to the literature}
 
-Give a precise source and prior-formalization account. Distinguish direct
-formalization, adaptation, independent proof, background, and original work.
+The theorem originates in independent work of Bombieri \cite{Bombieri1965}
+and A.~I. Vinogradov \cite{Vinogradov1965}.  Our exact quantifier surface is
+adapted from equation~(1.3) of Maynard \cite{Maynard2015}, with endpoints
+matched to the challenge statement in \texttt{PrimeGapsLib} commit
+\path{1faa7b14e82ddebc2772dfb9153922f01b106477} \cite{PrimeGapsLib}.
+
+For the proof, Vaughan's large-sieve lecture notes \cite{Vaughan2025} are the
+primary working exposition.  Harper's elementary-methods notes
+\cite{Harper2015} provide supplementary analytic-number-theory background.
+These expository sources guide the proof organization; they are not claimed as
+the origin of the theorem.
 
 \section{Proof architecture}
 
-Describe the mathematical reductions and how they compose. Replace this
-scaffold with the actual proof, not a development chronology.
+The selected route is the classical large-sieve proof.  The dependency graph
+is organized from stable, reusable analytic components toward the final
+statement:
+\begin{enumerate}
+  \item prove the primitive Dirichlet-character large-sieve inequality;
+  \item formalize Vaughan's identity for the von Mangoldt function;
+  \item combine these in a mean-value estimate for character sums;
+  \item isolate the Siegel--Walfisz input for small moduli;
+  \item prove a weighted Bombieri--Vinogradov estimate for the Chebyshev sum;
+  \item remove prime powers and partial-sum weights to obtain
+        Theorem~\ref{thm:bv} for $\pi(x;q,a)$.
+\end{enumerate}
+
+Independent branches are intended to depend on small definition and helper
+modules, not on one another.  The final assembly module will import the branch
+results only after their interfaces have stabilized.  The first live proof
+obligation is item~1.
 
 \section{Formalization and verification}
 
-Map each headline theorem to its Lean declaration. Describe dependency pins,
-the Challenge/Solution trust boundary, kernel checks, Comparator/NanoDa replay,
-and any exact finite certificates or computations.
+The target declaration and source module are
+\begin{center}
+\texttt{BombieriVinogradov.Statement}\\
+\texttt{BombieriVinogradov/Definitions/Statement.lean}.
+\end{center}
+Its supporting definitions are:
+\begin{itemize}
+  \item \texttt{Real.primeCountingZMod};
+  \item \texttt{BombieriVinogradov.primeCounting};
+  \item \texttt{BombieriVinogradov.primeDiscrepancy};
+  \item \texttt{BombieriVinogradov.averagePrimeDiscrepancy}.
+\end{itemize}
+
+The repository is pinned to Lean~4.33.1 and the matching mathlib release.  At
+this stage only the definitions and proposition are kernel checked.  The
+public \texttt{Challenge.lean} and \texttt{Solution.lean} files deliberately
+expose a project-specific research placeholder, not Theorem~\ref{thm:bv}.
+They will be replaced by the real theorem surface only after the proof compiles.
+Consequently, current Comparator or NanoDa success is infrastructure evidence,
+not evidence that Bombieri--Vinogradov has been proved.
 
 \section{Limitations and review status}
 
-State known divergences, omitted material, automation use, and the review that
-actually occurred. Mechanical checks are not independent expert review.
+No proof of Theorem~\ref{thm:bv} is present yet.  In particular, the character
+large sieve, Vaughan identity, Siegel--Walfisz estimate, weighted theorem, and
+conversion to prime counts remain open.  The target statement has been checked
+against Maynard's formulation and the cited downstream Lean surface, but it has
+not received independent expert mathematical review.  Automated builds and
+source-policy checks do not substitute for such review.
 
 \section*{Acknowledgements}
 
-Credit mathematical sources, libraries, tools, contributors, and reviewers.
+We thank the authors and maintainers of Lean, mathlib, and
+\texttt{PrimeGapsLib}.  The formalization workflow uses AI assistance under
+human direction; all claims remain subject to kernel checking and mathematical
+review.
 
 \begin{thebibliography}{9}
 
-\bibitem{PrimarySource}
-Replace with the complete primary-source citation.
+\bibitem{Bombieri1965}
+E.~Bombieri,
+\emph{On the large sieve},
+Mathematika \textbf{12} (1965), 201--225.
+\url{https://doi.org/10.1112/S0025579300005313}.
+
+\bibitem{Vinogradov1965}
+A.~I. Vinogradov,
+\emph{The density hypothesis for Dirichlet $L$-series},
+Izv. Akad. Nauk SSSR Ser. Mat. \textbf{29} (1965), 903--934.
+\url{https://www.mathnet.ru/eng/im3080}.
+
+\bibitem{Maynard2015}
+J.~Maynard,
+\emph{Small gaps between primes},
+Ann. of Math. (2) \textbf{181} (2015), 383--413.
+\url{https://arxiv.org/abs/1311.4600}.
+
+\bibitem{Vaughan2025}
+R.~C. Vaughan,
+\emph{The Bombieri--Vinogradov theorem}, lecture notes, 2025.
+\url{https://personal.science.psu.edu/rcv4/571s25/Class571-06.pdf}.
+
+\bibitem{Harper2015}
+A.~J. Harper,
+\emph{Elementary methods in analytic number theory: notes 2}, 2015.
+\url{https://warwick.ac.uk/fac/sci/maths/people/staff/harper/elementarymethodsnotes2.pdf}.
+
+\bibitem{PrimeGapsLib}
+Axiom Math,
+\emph{PrimeGapsLib}, Lean formalization repository, commit
+\path{1faa7b14e82ddebc2772dfb9153922f01b106477}.
+\url{https://github.com/AxiomMath/PrimeGapsLib}.
 
 \end{thebibliography}
 
