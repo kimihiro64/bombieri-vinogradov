@@ -47,29 +47,41 @@ theorem DirichletCharacter.gammaFactor_inv_eq_conj_conj
     rw [hOddInv.gammaFactor_def, hOdd.gammaFactor_def]
     simpa using Complex.Gammaℝ_conj (conj s + 1)
 
-theorem DirichletCharacter.gammaFactor_ne_zero_of_one_lt_re
+theorem DirichletCharacter.gammaFactor_ne_zero_of_re_pos
     {N : Nat} (chi : DirichletCharacter Complex N) {s : Complex}
-    (hs : 1 < s.re) : chi.gammaFactor s ≠ 0 := by
+    (hs : 0 < s.re) : chi.gammaFactor s ≠ 0 := by
   rcases chi.even_or_odd with hEven | hOdd
   · rw [hEven.gammaFactor_def]
-    exact Complex.Gammaℝ_ne_zero_of_re_pos (lt_trans zero_lt_one hs)
+    exact Complex.Gammaℝ_ne_zero_of_re_pos hs
   · rw [hOdd.gammaFactor_def]
     apply Complex.Gammaℝ_ne_zero_of_re_pos
     simp
     linarith
 
-theorem DirichletCharacter.completedLFunction_eq_LFunction_mul_gammaFactor_of_one_lt_re
+theorem DirichletCharacter.gammaFactor_ne_zero_of_one_lt_re
+    {N : Nat} (chi : DirichletCharacter Complex N) {s : Complex}
+    (hs : 1 < s.re) : chi.gammaFactor s ≠ 0 :=
+  DirichletCharacter.gammaFactor_ne_zero_of_re_pos chi (lt_trans zero_lt_one hs)
+
+theorem DirichletCharacter.completedLFunction_eq_LFunction_mul_gammaFactor_of_re_pos
     {N : Nat} [NeZero N] (chi : DirichletCharacter Complex N)
-    {s : Complex} (hs : 1 < s.re) :
+    {s : Complex} (hs : 0 < s.re) :
     chi.completedLFunction s = chi.LFunction s * chi.gammaFactor s := by
   have hsNeZero : s ≠ 0 := by
     intro hsZero
     subst s
     norm_num at hs
   have hGammaNe :=
-    DirichletCharacter.gammaFactor_ne_zero_of_one_lt_re chi hs
+    DirichletCharacter.gammaFactor_ne_zero_of_re_pos chi hs
   exact ((eq_div_iff hGammaNe).mp
     (chi.LFunction_eq_completed_div_gammaFactor s (.inl hsNeZero))).symm
+
+theorem DirichletCharacter.completedLFunction_eq_LFunction_mul_gammaFactor_of_one_lt_re
+    {N : Nat} [NeZero N] (chi : DirichletCharacter Complex N)
+    {s : Complex} (hs : 1 < s.re) :
+    chi.completedLFunction s = chi.LFunction s * chi.gammaFactor s :=
+  DirichletCharacter.completedLFunction_eq_LFunction_mul_gammaFactor_of_re_pos
+    chi (lt_trans zero_lt_one hs)
 
 theorem symmetricCompletedLFunction_inv_eq_conj_conj
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}

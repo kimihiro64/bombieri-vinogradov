@@ -1,4 +1,5 @@
 import BombieriVinogradov.Proof.SiegelWalfisz.ZeroFree.CompletedDivisorEndpoints
+import BombieriVinogradov.Proof.SiegelWalfisz.ZeroFree.CompletedZeroIndex
 import BombieriVinogradov.Proof.SiegelWalfisz.ZeroFree.CompletedZeroMultiplicitySymmetry
 import PrimeNumberTheoremAnd.Mathlib.Analysis.Complex.DivisorFiber
 
@@ -12,11 +13,6 @@ orders to an equivalence of the multiplicity-aware nonzero-zero divisor indices.
 set_option autoImplicit false
 
 namespace BombieriVinogradov.SiegelWalfisz
-
-abbrev SymmetricCompletedZeroIndex
-    {N : Nat} [NeZero N] (chi : DirichletCharacter Complex N) :=
-  Complex.Hadamard.divisorZeroIndex₀
-    (symmetricCompletedLFunction chi) (Set.univ : Set Complex)
 
 theorem symmetricCompletedLFunction_divisorMultiplicity_one_sub_conj
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}
