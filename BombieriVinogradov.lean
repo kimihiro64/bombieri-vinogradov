@@ -1,6 +1,7 @@
 import BombieriVinogradov.Assembly.ResearchMode
 import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
+import BombieriVinogradov.Definitions.VaughanMeanValue
 import BombieriVinogradov.Proof.LargeSieve.All
 import BombieriVinogradov.Proof.VaughanIdentity.Main
 
