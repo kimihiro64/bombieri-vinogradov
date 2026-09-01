@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -202,6 +203,65 @@ def check_lean_sources(root: Path) -> None:
     print(f"Lean source policy: clean ({len(files)} files)")
 
 
+def check_palomar_boundary(root: Path) -> None:
+    """Enforce cheap syntax-level Palomar theorem-boundary invariants."""
+    failures: list[str] = []
+    boundary: dict[str, tuple[str, list[str]]] = {}
+    for relative in ("Challenge.lean", "Solution.lean"):
+        path = root / relative
+        if not path.is_file():
+            failures.append(f"{relative}: missing boundary module")
+            continue
+        source = path.read_text(encoding="utf-8")
+        try:
+            code = strip_lean_comments(source)
+        except CheckFailure as error:
+            failures.append(f"{relative}: {error}")
+            continue
+        imports = lean_imports(code)
+        boundary[relative] = (code, imports)
+        if re.search(r"(?m)^\s*set_option\s+autoImplicit\s+false\s*$", code) is None:
+            failures.append(f"{relative}: must contain `set_option autoImplicit false`")
+
+    challenge_imports = boundary.get("Challenge.lean", ("", []))[1]
+    solution_imports = boundary.get("Solution.lean", ("", []))[1]
+    for module in challenge_imports:
+        if not module.startswith("Mathlib."):
+            failures.append(
+                f"Challenge.lean: Palomar boundary import `{module}` is not an exact Mathlib module"
+            )
+    for module in sorted(set(challenge_imports) - set(solution_imports)):
+        failures.append(
+            f"Solution.lean: missing Challenge's direct Mathlib type-provider import `{module}`"
+        )
+
+    config_path = root / "comparator.json"
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        failures.append(f"comparator.json: cannot read valid JSON: {error}")
+    else:
+        if config.get("challenge_module") != "Challenge":
+            failures.append("comparator.json: challenge_module must be `Challenge`")
+        if config.get("solution_module") != "Solution":
+            failures.append("comparator.json: solution_module must be `Solution`")
+        declarations = [
+            *config.get("theorem_names", []),
+            *config.get("definition_names", []),
+        ]
+        if not declarations or not all(
+            isinstance(name, str) and name.strip() for name in declarations
+        ):
+            failures.append("comparator.json: declaration list must be nonempty strings")
+
+    if failures:
+        raise CheckFailure("Palomar boundary policy failed:\n" + "\n".join(failures))
+    print(
+        "Palomar boundary: Mathlib-only Challenge, explicit autoImplicit, "
+        "and mirrored provider imports"
+    )
+
+
 def check_architecture(root: Path) -> None:
     """Run the public dependency and file-size architecture audit."""
     run((sys.executable, "scripts/import_graph.py"), root)
@@ -306,6 +366,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
     try:
         check_public_boundary(root)
         check_lean_sources(root)
+        check_palomar_boundary(root)
         check_architecture(root)
         check_metadata(root, release=options.profile == "release")
         if options.profile in {"research", "release"}:

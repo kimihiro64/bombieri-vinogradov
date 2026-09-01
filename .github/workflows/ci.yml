@@ -74,7 +74,11 @@ jobs:
           persist-credentials: false
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
-          build: true
+          build: false
+      - name: Audit the separately elaborated Palomar boundary
+        run: python scripts/boundary_audit.py
+      - name: Build the complete formalization
+        run: lake build
 
   docs:
     name: Build API documentation

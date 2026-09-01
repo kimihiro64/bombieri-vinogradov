@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from scripts.check import (
+    CheckFailure,
     check_lean_sources,
+    check_palomar_boundary,
     is_private_path,
     lean_imports,
     public_candidate_paths,
@@ -78,3 +83,51 @@ def test_ignored_private_lean_does_not_affect_public_policy(tmp_path: Path) -> N
     assert ".research/Private.lean" not in candidates
     assert "Deleted.lean" not in candidates
     check_lean_sources(tmp_path)
+
+
+def write_boundary_fixture(tmp_path: Path, challenge_import: str) -> None:
+    (tmp_path / "Challenge.lean").write_text(
+        f"import {challenge_import}\n\n"
+        "set_option autoImplicit false\n\n"
+        "theorem Boundary.result : True := by\n  sorry\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "Solution.lean").write_text(
+        "import Mathlib.Data.Nat.Basic\n\n"
+        "set_option autoImplicit false\n\n"
+        "theorem Boundary.result : True := by\n  trivial\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "comparator.json").write_text(
+        json.dumps(
+            {
+                "challenge_module": "Challenge",
+                "solution_module": "Solution",
+                "theorem_names": ["Boundary.result"],
+                "definition_names": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_palomar_boundary_accepts_mathlib_only_challenge(tmp_path: Path) -> None:
+    write_boundary_fixture(tmp_path, "Mathlib.Data.Nat.Basic")
+    check_palomar_boundary(tmp_path)
+
+
+def test_palomar_boundary_rejects_project_import(tmp_path: Path) -> None:
+    write_boundary_fixture(tmp_path, "Project.Statement")
+    with pytest.raises(CheckFailure, match="is not an exact Mathlib module"):
+        check_palomar_boundary(tmp_path)
+
+
+def test_palomar_boundary_rejects_missing_auto_implicit_guard(tmp_path: Path) -> None:
+    write_boundary_fixture(tmp_path, "Mathlib.Data.Nat.Basic")
+    solution = tmp_path / "Solution.lean"
+    solution.write_text(
+        solution.read_text(encoding="utf-8").replace("set_option autoImplicit false\n\n", ""),
+        encoding="utf-8",
+    )
+    with pytest.raises(CheckFailure, match="Solution.lean: must contain"):
+        check_palomar_boundary(tmp_path)
