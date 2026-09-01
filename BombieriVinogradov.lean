@@ -1,5 +1,6 @@
 import BombieriVinogradov.Assembly.ResearchMode
 import BombieriVinogradov.Assembly.VaughanMeanValue.Bilinear
+import BombieriVinogradov.Assembly.VaughanMeanValue.MaximalBilinear
 import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
 import BombieriVinogradov.Definitions.VaughanMeanValue
@@ -11,6 +12,6 @@ import BombieriVinogradov.Proof.VaughanIdentity.Main
 # Public library root
 
 This module exports the source-aligned target definitions, the proved large
-sieve and Vaughan identity branches, and the temporary Challenge/Solution
-placeholder while the final Bombieri-Vinogradov assembly remains open.
+sieve and Vaughan identity branches, and the maximal bilinear large-sieve
+assembly used in Vaughan's mean-value theorem.
 -/
