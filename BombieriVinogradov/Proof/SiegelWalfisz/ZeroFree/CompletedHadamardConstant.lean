@@ -15,6 +15,20 @@ set_option autoImplicit false
 
 namespace BombieriVinogradov.SiegelWalfisz
 
+/-- A complex number obtained from the derivative at zero of a degree-one
+no-monomial Hadamard polynomial for the symmetric completed L-function. -/
+def IsCompletedLFunctionHadamardConstant
+    {N : Nat} [NeZero N] (chi : DirichletCharacter Complex N)
+    (B : Complex) : Prop :=
+  exists P : Polynomial Complex,
+    P.degree <= 1 ∧
+      (forall z : Complex,
+        symmetricCompletedLFunction chi z =
+          Complex.exp (Polynomial.eval z P) *
+            Complex.Hadamard.divisorCanonicalProduct 1
+              (symmetricCompletedLFunction chi) (Set.univ : Set Complex) z) ∧
+      B = Polynomial.eval 0 P.derivative
+
 theorem symmetricCompletedLFunction_hadamard_polynomial_derivative_eval_eq
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}
     (hchi : chi ≠ 1) (hPrimitive : DirichletCharacter.IsPrimitive chi)
@@ -72,15 +86,7 @@ theorem symmetricCompletedLFunction_hadamard_polynomial_derivative_eval_zero_eq
 theorem existsUnique_symmetricCompletedLFunction_hadamardConstant
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}
     (hchi : chi ≠ 1) (hPrimitive : DirichletCharacter.IsPrimitive chi) :
-    ∃! B : Complex,
-      exists P : Polynomial Complex,
-        P.degree <= 1 ∧
-          (forall z : Complex,
-            symmetricCompletedLFunction chi z =
-              Complex.exp (Polynomial.eval z P) *
-                Complex.Hadamard.divisorCanonicalProduct 1
-                  (symmetricCompletedLFunction chi) (Set.univ : Set Complex) z) ∧
-          B = Polynomial.eval 0 P.derivative := by
+    ∃! B : Complex, IsCompletedLFunctionHadamardConstant chi B := by
   choose P hDegree hFactorization using
     symmetricCompletedLFunction_hadamard_factorization_no_monomial hchi hPrimitive
   refine ExistsUnique.intro (Polynomial.eval 0 P.derivative) ?_ ?_

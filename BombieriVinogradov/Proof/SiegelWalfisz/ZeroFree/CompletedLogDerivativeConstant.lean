@@ -17,14 +17,7 @@ theorem logDeriv_symmetricCompletedLFunction_eq_hadamardConstant_add_tsum
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}
     (hchi : chi ≠ 1) (hPrimitive : DirichletCharacter.IsPrimitive chi)
     {B : Complex}
-    (hB : exists P : Polynomial Complex,
-      P.degree <= 1 ∧
-        (forall w : Complex,
-          symmetricCompletedLFunction chi w =
-            Complex.exp (Polynomial.eval w P) *
-              Complex.Hadamard.divisorCanonicalProduct 1
-                (symmetricCompletedLFunction chi) (Set.univ : Set Complex) w) ∧
-        B = Polynomial.eval 0 P.derivative)
+    (hB : IsCompletedLFunctionHadamardConstant chi B)
     {z : Complex}
     (hz : forall p : Complex.Hadamard.divisorZeroIndex₀
         (symmetricCompletedLFunction chi) (Set.univ : Set Complex),
@@ -57,14 +50,7 @@ theorem exists_symmetricCompletedLFunction_hadamardConstant_logDeriv_zero_sum
     {N : Nat} [NeZero N] {chi : DirichletCharacter Complex N}
     (hchi : chi ≠ 1) (hPrimitive : DirichletCharacter.IsPrimitive chi) :
     exists B : Complex,
-      (exists P : Polynomial Complex,
-        P.degree <= 1 ∧
-          (forall w : Complex,
-            symmetricCompletedLFunction chi w =
-              Complex.exp (Polynomial.eval w P) *
-                Complex.Hadamard.divisorCanonicalProduct 1
-                  (symmetricCompletedLFunction chi) (Set.univ : Set Complex) w) ∧
-          B = Polynomial.eval 0 P.derivative) ∧
+      IsCompletedLFunctionHadamardConstant chi B ∧
         forall z : Complex,
           (forall p : Complex.Hadamard.divisorZeroIndex₀
               (symmetricCompletedLFunction chi) (Set.univ : Set Complex),
@@ -78,14 +64,7 @@ theorem exists_symmetricCompletedLFunction_hadamardConstant_logDeriv_zero_sum
   choose P hDegree hFactorization using
     symmetricCompletedLFunction_hadamard_factorization_no_monomial hchi hPrimitive
   let B : Complex := Polynomial.eval 0 P.derivative
-  have hB : exists Q : Polynomial Complex,
-      Q.degree <= 1 ∧
-        (forall w : Complex,
-          symmetricCompletedLFunction chi w =
-            Complex.exp (Polynomial.eval w Q) *
-              Complex.Hadamard.divisorCanonicalProduct 1
-                (symmetricCompletedLFunction chi) (Set.univ : Set Complex) w) ∧
-        B = Polynomial.eval 0 Q.derivative :=
+  have hB : IsCompletedLFunctionHadamardConstant chi B :=
     Exists.intro P (And.intro hDegree (And.intro hFactorization rfl))
   refine Exists.intro B (And.intro hB ?_)
   intro z hz
