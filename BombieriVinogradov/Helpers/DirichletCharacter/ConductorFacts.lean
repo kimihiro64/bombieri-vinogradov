@@ -34,6 +34,26 @@ theorem primitiveCharacter_ne_one_of_ne_one {N : Nat} [NeZero N]
   rw [← chi.changeLevel_primitiveCharacter, hprimitive]
   simp
 
+theorem primitiveCharacter_pow_ne_one_of_pow_ne_one
+    {N m : Nat} [NeZero N] (chi : _root_.DirichletCharacter Complex N)
+    (hchi : chi ^ m ≠ 1) : chi.primitiveCharacter ^ m ≠ 1 := by
+  intro hPrimitive
+  apply hchi
+  let lift : _root_.DirichletCharacter Complex chi.conductor →*
+      _root_.DirichletCharacter Complex N :=
+    _root_.DirichletCharacter.changeLevel (R := Complex)
+      chi.conductor_dvd_level
+  have hLift : lift chi.primitiveCharacter = chi :=
+    chi.changeLevel_primitiveCharacter
+  calc
+    chi ^ m = (lift chi.primitiveCharacter) ^ m := by rw [hLift]
+    _ = lift (chi.primitiveCharacter ^ m) := by
+      rw [map_pow]
+    _ = lift 1 := by
+      rw [hPrimitive]
+    _ = 1 := by
+      rw [map_one]
+
 theorem conductor_le_level {N : Nat} [NeZero N]
     (chi : _root_.DirichletCharacter Complex N) : chi.conductor ≤ N :=
   Nat.le_of_dvd (NeZero.pos N) chi.conductor_dvd_level
