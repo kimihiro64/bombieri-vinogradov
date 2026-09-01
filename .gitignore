@@ -6,6 +6,7 @@
 /.ruff_cache/
 /.venv/
 /paper/build/
+/tmp/
 __pycache__/
 *.pyc
 *.egg-info/

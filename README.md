@@ -68,6 +68,17 @@ toolchain via `ELAN_TOOLCHAIN`. This is the known-good Robin1984 Palomar
 configuration and keeps the exporter aligned with this repository's `.olean`
 format without a fork or machine-local patch.
 
+## Releases
+
+`RELEASE_VERSION` contains the semantic version for the next completed
+release. CI checks its format and tag collision before the long Lean build.
+Research-mode repositories containing `TEMPLATE:` metadata never publish a
+release. Once the real metadata and theorem surface are complete, a successful
+`main` run publishes exactly three assets after every gate passes: the paper
+PDF, a Linux `.lake/build` archive with project licensing, and an offline API
+documentation ZIP with Lean and pinned-dependency notices. Reruns verify an
+existing release at the same commit instead of duplicating it.
+
 ## Paper
 
 The paper should state the exact mathematical result, its significance, source
@@ -75,6 +86,10 @@ relationship, proof architecture, formalization trust boundary, computation or
 certificate coverage, limitations, automation disclosure, and actual review
 status. Every theorem presented as proved must map to a kernel-checked Lean
 declaration.
+
+Its project-authored source and rendered PDF are dual-licensed under
+Apache-2.0 or CC-BY-4.0, at the recipient's option. The repository's default
+metadata licence remains Apache-2.0.
 
 ## Palomar
 
@@ -92,5 +107,9 @@ significance, or independent expert review.
 
 ## Licence
 
-This repository uses Apache-2.0. Cited mathematical sources, dependencies, and
-supplied literature retain their own copyrights and licences.
+The repository's original material is licensed under
+[Apache License 2.0](LICENSE) by default. The research paper is additionally
+available under CC-BY-4.0, at the recipient's option. Mathematical provenance,
+cited papers, supplied literature, dependencies, and generated archives are
+covered by [LICENSING.md](LICENSING.md); this project does not claim ownership
+of mathematical results or relicense third-party material.

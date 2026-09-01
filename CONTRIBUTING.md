@@ -35,3 +35,11 @@ commit. The prohibited roots include `.agents/`, `.research/`, `.codex/`,
 Run the research profile before opening a pull request. Release work additionally
 requires the full Palomar profile, paper, Comparator, NanoDa, clean Git state,
 and exact public commit audit.
+
+## Licence
+
+Contributions are accepted under the repository's Apache-2.0 licence unless
+explicitly agreed and marked otherwise. Preserve applicable third-party
+notices and submit only material you are authorized to license. The paper's
+additional CC-BY-4.0 option and generated-distribution scope are documented in
+[LICENSING.md](LICENSING.md).
