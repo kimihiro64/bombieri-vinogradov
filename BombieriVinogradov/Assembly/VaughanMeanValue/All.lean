@@ -3,6 +3,7 @@ import BombieriVinogradov.Assembly.VaughanMeanValue.MaximalBilinear
 import BombieriVinogradov.Assembly.VaughanMeanValue.PolyaVinogradov
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIIBlock
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIIDyadic
+import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIISum
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIOne
 
 /-!
