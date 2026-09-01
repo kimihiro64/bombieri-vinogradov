@@ -1,6 +1,7 @@
 import BombieriVinogradov.Assembly.ResearchMode
 import BombieriVinogradov.Assembly.VaughanMeanValue.Bilinear
 import BombieriVinogradov.Assembly.VaughanMeanValue.MaximalBilinear
+import BombieriVinogradov.Assembly.VaughanMeanValue.PolyaVinogradov
 import BombieriVinogradov.Definitions.CharacterSums
 import BombieriVinogradov.Definitions.Statement
 import BombieriVinogradov.Definitions.VaughanMeanValue
