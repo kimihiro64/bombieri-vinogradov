@@ -7,6 +7,7 @@ import BombieriVinogradov.Definitions.VaughanMeanValue
 import BombieriVinogradov.Helpers.ComplexAnalysis.CauchyTaylor
 import BombieriVinogradov.Helpers.LogCutoff.Integer
 import BombieriVinogradov.Proof.LargeSieve.All
+import BombieriVinogradov.Proof.SiegelWalfisz.Siegel.LowerBound.Main
 import BombieriVinogradov.Proof.SiegelWalfisz.SiegelProduct.Positivity.Main
 import BombieriVinogradov.Proof.VaughanIdentity.Main
 
@@ -17,5 +18,6 @@ This module exports the source-aligned target definitions, the proved large
 sieve and Vaughan identity branches, the Vaughan mean-value theorem, and the
 coefficient, analytic-product, and pole-subtraction theorems from Siegel's proof.
 It also exports Strombergsson's source-form positivity lemma near the pole,
-including its coefficient, residue, truncation, and tail infrastructure.
+including its coefficient, residue, truncation, and tail infrastructure, and
+the resulting non-effective lower bound for primitive quadratic L-values.
 -/
