@@ -6,6 +6,10 @@ import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIIDyadic
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIISum
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIOne
 import BombieriVinogradov.Assembly.VaughanMeanValue.TypeITwoMean
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanAssembly
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanMeanAggregate
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanMeanBound
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanRemainder
 
 /-!
 # Vaughan mean-value assembly
