@@ -30,4 +30,16 @@ theorem sum_character_range_eq_sum_mod {N : ℕ} [NeZero N]
   rw [Finset.sum_range_add, hfull, zero_add]
   exact Finset.sum_congr rfl fun k _hk => by simp
 
+/-- The zero endpoint contributes nothing to a nonprincipal character sum. -/
+theorem sum_character_Icc_zero_eq_one {N : ℕ} [NeZero N]
+    (chi : DirichletCharacter ℂ N) (hchi : chi ≠ 1) (n : ℕ) :
+    ∑ k ∈ Icc 0 n, chi k = ∑ k ∈ Icc 1 n, chi k := by
+  have hN : N ≠ 1 := by
+    intro h
+    subst N
+    exact hchi (Subsingleton.elim _ _)
+  have hzero : chi 0 = 0 := chi.map_zero' hN
+  rw [← insert_Icc_add_one_left_eq_Icc n.zero_le, sum_insert (by simp)]
+  simp [hzero]
+
 end BombieriVinogradov
