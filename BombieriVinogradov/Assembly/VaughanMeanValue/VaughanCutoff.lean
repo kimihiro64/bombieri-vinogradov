@@ -1,14 +1,10 @@
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.MiddleLevel
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.OuterRange
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.SmallLevel
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.UpperLevel
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.Selection
 
 /-!
 # Vaughan cutoff interface
 
-Stable aggregate import for the cutoff interface, the proved outer-range
-estimate, and completed inner regimes. Concrete cutoff selection is added only
-after every regime has a proved source-scale bound.
+Stable aggregate import for the exhaustive source-scale cutoff theorem. The
+selection module owns the four regime imports, keeping aggregate fan-out to one.
 -/
 
 set_option autoImplicit false
