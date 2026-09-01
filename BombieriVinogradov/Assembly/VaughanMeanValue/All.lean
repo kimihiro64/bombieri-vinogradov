@@ -1,15 +1,4 @@
-import BombieriVinogradov.Assembly.VaughanMeanValue.Bilinear
-import BombieriVinogradov.Assembly.VaughanMeanValue.MaximalBilinear
-import BombieriVinogradov.Assembly.VaughanMeanValue.PolyaVinogradov
-import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIIBlock
-import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIIDyadic
-import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIISum
-import BombieriVinogradov.Assembly.VaughanMeanValue.TypeIOne
-import BombieriVinogradov.Assembly.VaughanMeanValue.TypeITwoMean
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanAssembly
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanMeanAggregate
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanMeanBound
-import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanRemainder
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff
 
 /-!
 # Vaughan mean-value assembly
