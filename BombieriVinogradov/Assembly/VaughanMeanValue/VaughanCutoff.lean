@@ -1,6 +1,7 @@
 import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.MiddleLevel
 import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.OuterRange
 import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.SmallLevel
+import BombieriVinogradov.Assembly.VaughanMeanValue.VaughanCutoff.UpperLevel
 
 /-!
 # Vaughan cutoff interface
