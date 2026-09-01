@@ -54,6 +54,19 @@ theorem primitiveCharacter_pow_ne_one_of_pow_ne_one
     _ = 1 := by
       rw [map_one]
 
+theorem inv_eq_self_of_sq_eq_one {N : Nat} [NeZero N]
+    (chi : _root_.DirichletCharacter Complex N) (hchi : chi ^ 2 = 1) :
+    chi⁻¹ = chi := by
+  have hProduct : chi * chi = 1 := by
+    simpa [pow_two] using hchi
+  exact (eq_inv_of_mul_eq_one_left hProduct).symm
+
+theorem primitiveCharacter_pow_eq_one_of_pow_eq_one
+    {N m : Nat} [NeZero N] (chi : _root_.DirichletCharacter Complex N)
+    (hchi : chi ^ m = 1) : chi.primitiveCharacter ^ m = 1 := by
+  apply _root_.DirichletCharacter.changeLevel_injective chi.conductor_dvd_level
+  rw [map_pow, chi.changeLevel_primitiveCharacter, hchi, map_one]
+
 theorem conductor_le_level {N : Nat} [NeZero N]
     (chi : _root_.DirichletCharacter Complex N) : chi.conductor ≤ N :=
   Nat.le_of_dvd (NeZero.pos N) chi.conductor_dvd_level
