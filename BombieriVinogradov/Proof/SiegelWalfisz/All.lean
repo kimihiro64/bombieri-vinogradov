@@ -4,6 +4,7 @@ import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Meromorphi
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Origin.KernelDifference
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Origin.LogDerivativeRemainder
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Origin.RegularizedSimpleAtZero
+import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Origin.RegularizedSimpleOn
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Poles.Finite
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Poles.IntegrandSimpleAwayZero
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Residue.Poles.LogDerivativeSimple
@@ -20,5 +21,5 @@ logarithmic derivative and the full integrand away from zero, without coupling
 their internal proof modules. It also exports the first-order kernel
 cancellation and bounded logarithmic-derivative remainder needed to regularize
 the origin, together with the proved simple-pole bound for the corrected
-integrand at zero.
+integrand globally.
 -/
