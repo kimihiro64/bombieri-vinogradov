@@ -7,8 +7,7 @@ import BombieriVinogradov.Definitions.VaughanMeanValue
 import BombieriVinogradov.Helpers.ComplexAnalysis.CauchyTaylor
 import BombieriVinogradov.Helpers.LogCutoff.Integer
 import BombieriVinogradov.Proof.LargeSieve.All
-import BombieriVinogradov.Proof.SiegelWalfisz.Siegel.All
-import BombieriVinogradov.Proof.SiegelWalfisz.SiegelProduct.Positivity.Main
+import BombieriVinogradov.Proof.SiegelWalfisz.All
 import BombieriVinogradov.Proof.VaughanIdentity.Main
 
 /-!
@@ -20,5 +19,6 @@ coefficient, analytic-product, and pole-subtraction theorems from Siegel's proof
 It also exports Strombergsson's source-form positivity lemma near the pole,
 including its coefficient, residue, truncation, and tail infrastructure, and
 the resulting non-effective lower bound and zero exclusion for quadratic
-Dirichlet L-functions.
+Dirichlet L-functions. The explicit-formula branch additionally exports the
+optimized Perron approximation and its exact finite contour decomposition.
 -/
