@@ -1,7 +1,7 @@
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Estimate.EndpointAbsorption
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Estimate.HarmonicGrowth
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Estimate.RangeSum
-import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Estimate.VonMangoldtLSeriesBound
+import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Estimate.VonMangoldtLSeriesRange
 
 /-!
 # Source-scale Perron error estimate
@@ -20,25 +20,24 @@ namespace BombieriVinogradov.SiegelWalfisz
 `x ^ c / (T * (c - 1)) + x * log (2 * x) ^ 2 / T` scale. -/
 theorem exists_tsum_sourcePerronErrorMajorantTerm_le_scale :
     Exists fun C : Real => And (0 < C) (forall x : Nat, 2 < x ->
-      forall c T : Real, 1 < c -> c < 2 -> 0 < T ->
+      forall c T : Real, 1 < c -> c <= 3 -> 0 < T ->
         tsum (sourcePerronErrorMajorantTerm x c T) <=
           C * (((x : Real) ^ c / (T * (c - 1))) +
             ((x : Real) * Real.log (2 * (x : Real)) ^ 2 / T))) := by
-  have hExist := exists_vonMangoldtLSeriesNormSum_le_div
+  have hExist := exists_vonMangoldtLSeriesNormSum_le_div_le_three
   let C0 : Real := hExist.choose
   have hSpec := hExist.choose_spec
   have hC0 : 0 < C0 := hSpec.1
   have hSeries := hSpec.2
   refine Exists.intro (C0 + 51) (And.intro (by linarith) ?_)
-  intro x hx c T hc1 hc2 hT
+  intro x hx c T hc1 hc3 hT
   have hxPos : 0 < x := lt_trans zero_lt_two hx
-  have hc3 : c <= 3 := by linarith
   have hLogOne := one_le_log_two_mul hx
   have hLogNonneg : 0 <= Real.log (2 * (x : Real)) :=
     le_trans zero_le_one hLogOne
   have hRange := tsum_sourcePerronErrorMajorantTerm_le_ranges
     hxPos hc1 hc3 hT
-  have hSeriesAt := hSeries c hc1 hc2
+  have hSeriesAt := hSeries c hc1 hc3
   have hcDenom : Ne (c - 1) 0 := ne_of_gt (sub_pos.mpr hc1)
   have hFar : ((x : Real) ^ c / T) * vonMangoldtLSeriesNormSum c <=
       C0 * ((x : Real) ^ c / (T * (c - 1))) := by

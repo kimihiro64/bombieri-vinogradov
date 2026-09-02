@@ -20,7 +20,7 @@ character and modulus. -/
 theorem exists_norm_explicitFormulaVerticalIntegral_sub_halfSum_le_scale :
     Exists fun C : Real => And (0 < C) (forall N : Nat, forall [NeZero N],
       forall chi : DirichletCharacter Complex N, forall x : Nat, 2 < x ->
-      forall c T : Real, 1 < c -> c < 2 -> 0 < T ->
+      forall c T : Real, 1 < c -> c <= 3 -> 0 < T ->
         norm (explicitFormulaVerticalIntegral chi x c T -
           characterChebyshevHalfSum x chi) <=
           C * (((x : Real) ^ c / (T * (c - 1))) +
@@ -29,9 +29,9 @@ theorem exists_norm_explicitFormulaVerticalIntegral_sub_halfSum_le_scale :
   let C : Real := hExist.choose
   have hSpec := hExist.choose_spec
   refine Exists.intro C (And.intro hSpec.1 ?_)
-  intro N hNe chi x hx c T hc1 hc2 hT
+  intro N hNe chi x hx c T hc1 hc3 hT
   exact (norm_explicitFormulaVerticalIntegral_sub_halfSum_le_source chi
     (lt_trans zero_lt_two hx) hc1 hT).trans
-      (hSpec.2 x hx c T hc1 hc2 hT)
+      (hSpec.2 x hx c T hc1 hc3 hT)
 
 end BombieriVinogradov.SiegelWalfisz
