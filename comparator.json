@@ -1,8 +1,8 @@
 {
   "challenge_module": "Challenge",
   "solution_module": "Solution",
-  "theorem_names": ["BombieriVinogradov.research_placeholder"],
-  "definition_names": [],
+  "theorem_names": ["BombieriVinogradov.bombieriVinogradov"],
+  "definition_names": ["Real.primeCountingZMod", "pi", "BombieriVinogradov"],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
   "enable_nanoda": true
 }

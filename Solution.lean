@@ -1,18 +1,20 @@
-import BombieriVinogradov.Assembly.ResearchMode
-import Mathlib.Logic.Basic
+import BombieriVinogradov.Definitions.Statement
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.NumberTheory.PrimeCounting
 
 set_option autoImplicit false
 
 /-!
-# Research-mode solution placeholder
+# Bombieri--Vinogradov solution boundary
 
-The declaration below proves only the explicitly temporary research
-placeholder. It is not the Bombieri-Vinogradov theorem.
+The theorem type is the exact consumer-facing proposition. The proof hole is
+temporary research state and must be replaced by the final assembly before any
+release claim.
 -/
 
 namespace BombieriVinogradov
 
-theorem research_placeholder : FormalizationTargetPending := by
-  exact assembledResearchPlaceholder
+theorem bombieriVinogradov : _root_.BombieriVinogradov := by
+  sorry
 
 end BombieriVinogradov

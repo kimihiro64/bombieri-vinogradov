@@ -9,9 +9,22 @@ with the quantifiers and endpoints used by `PrimeGapsLib` commit
 `1faa7b14e82ddebc2772dfb9153922f01b106477`.
 -/
 
-namespace BombieriVinogradov
-
 open Finset Nat Real
+
+/-!
+The declaration below intentionally matches `PrimeGapsLib` commit
+`1faa7b14e82ddebc2772dfb9153922f01b106477` definitionally.
+-/
+
+/-- The exact Bombieri--Vinogradov hypothesis consumed by `PrimeGapsLib`. -/
+def BombieriVinogradov : Prop :=
+  ∀ theta < (1 / 2 : ℝ), ∀ A ≥ (1 : ℝ), ∃ c > (0 : ℝ), ∀ x ≥ (3 : ℝ),
+    ∑ q ∈ Icc (1 : ℕ) ⌊x ^ theta⌋₊,
+      ⨆ a : (ZMod q)ˣ,
+        |((Real.primeCountingZMod x q a : ℝ) - pi x / q.totient : ℝ)| ≤
+          c * x / x.log ^ A
+
+namespace BombieriVinogradov
 
 /-- The prime-counting discrepancy in the reduced residue class `a` modulo `q`. -/
 noncomputable def primeDiscrepancy (x : Real) (q : Nat) (a : (ZMod q)ˣ) : Real :=
@@ -32,7 +45,11 @@ It deliberately asserts every `theta < 1/2`, not the endpoint `theta = 1/2`,
 and uses the unweighted prime count `pi(x; q, a)` rather than a Chebyshev sum.
 -/
 def Statement : Prop :=
-  ∀ theta < (1 / 2 : Real), ∀ A ≥ (1 : Real), ∃ c > (0 : Real), ∀ x ≥ (3 : Real),
-    averagePrimeDiscrepancy x theta ≤ c * x / x.log ^ A
+  _root_.BombieriVinogradov
+
+theorem statement_iff_average : Statement ↔
+    ∀ theta < (1 / 2 : Real), ∀ A ≥ (1 : Real), ∃ c > (0 : Real), ∀ x ≥ (3 : Real),
+      averagePrimeDiscrepancy x theta ≤ c * x / x.log ^ A := by
+  rfl
 
 end BombieriVinogradov
