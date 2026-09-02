@@ -115,7 +115,7 @@ theorem truncatedPerronKernel_one_eq_arctan
     truncatedPerronKernel 1 c T =
       (Real.arctan (T / c) / Real.pi : Complex) := by
   rw [truncatedPerronKernel]
-  simp [VIntegral', VIntegral]
+  simp [perronKernelIntegrand, VIntegral', VIntegral]
   rw [reciprocal_vertical_integral_eq_arctan hc]
   push_cast
   field_simp
