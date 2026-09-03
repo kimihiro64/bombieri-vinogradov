@@ -1,7 +1,5 @@
-import BombieriVinogradov.Assembly.SiegelWalfisz.ExplicitFormula.BottomBoundaryIntegralBound
-import BombieriVinogradov.Assembly.SiegelWalfisz.ExplicitFormula.TopBoundaryIntegralBound
+import BombieriVinogradov.Assembly.SiegelWalfisz.ExplicitFormula.HorizontalBoundaryBoundsAtHeight
 import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.Horizontal.GoodTwoSidedHeightLogDerivativeBound
-import BombieriVinogradov.Proof.SiegelWalfisz.ExplicitFormula.PerronError.Optimize.HorizontalStrip
 import Mathlib.Analysis.Complex.Norm
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import Mathlib.Data.Complex.Basic
@@ -52,41 +50,10 @@ theorem exists_goodHeight_centeredHorizontalBoundary_bounds :
     hGood hN hchi hPrimitive T hT
   have hTprimePos : 0 < Tprime := by
     linarith
-  have hTopPoint : forall u : Real,
-      Set.uIcc (-(1 : Real) / 2) (optimizedPerronLine x) u ->
-        And (Ne (chi.LFunction
-          ((u : Complex) + (Tprime : Complex) * Complex.I)) 0)
-          (norm (logDeriv chi.LFunction
-            ((u : Complex) + (Tprime : Complex) * Complex.I)) <=
-              C * (zeroHeightLogScale N T) ^ 2) := by
-    intro u hu
-    have huBounds := mem_optimizedHorizontalStrip_bounds hx hu
-    exact hTop (by simp) (by simpa using huBounds.1)
-      (by simpa using huBounds.2)
-  have hBottomPoint : forall u : Real,
-      Set.uIcc (optimizedPerronLine x) (-(1 : Real) / 2) u ->
-        And (Ne (chi.LFunction
-          ((u : Complex) + ((-Tprime : Real) : Complex) * Complex.I)) 0)
-          (norm (logDeriv chi.LFunction
-            ((u : Complex) + ((-Tprime : Real) : Complex) * Complex.I)) <=
-              C * (zeroHeightLogScale N T) ^ 2) := by
-    intro u hu
-    rw [Set.uIcc_comm] at hu
-    have huBounds := mem_optimizedHorizontalStrip_bounds hx hu
-    exact hBottom (by simp) (by simpa using huBounds.1)
-      (by simpa using huBounds.2)
-  have hTopBound :=
-    norm_centeredExplicitFormulaTopBoundaryIntegral_le
-      hchi x hx hTprimePos
-        (fun u hu => (hTopPoint u hu).1)
-        (fun u hu => (hTopPoint u hu).2)
-  have hBottomBound :=
-    norm_centeredExplicitFormulaBottomBoundaryIntegral_le
-      hchi x hx hTprimePos
-        (fun u hu => (hBottomPoint u hu).1)
-        (fun u hu => (hBottomPoint u hu).2)
+  have hBounds :=
+    centeredHorizontalBoundary_bounds_of_LFunction_data
+      hchi hx hTprimePos hTop hBottom
   exact Exists.intro Tprime
-    (And.intro hTprimeLower (And.intro hTprimeUpper
-      (And.intro hTopBound hBottomBound)))
+    (And.intro hTprimeLower (And.intro hTprimeUpper hBounds))
 
 end BombieriVinogradov.SiegelWalfisz
