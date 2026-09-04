@@ -102,7 +102,7 @@ theorem exists_norm_logDeriv_LFunction_left_line_le :
       apply add_le_add
       apply add_le_add
       exact le_of_eq (by
-        simpa only [norm_neg, Complex.norm_real, Real.norm_eq_abs])
+        simp only [norm_neg, Complex.norm_real, Real.norm_eq_abs])
       exact hRightLAtScale
       exact hRightGammaAtScale
       exact hLeftGammaAt
