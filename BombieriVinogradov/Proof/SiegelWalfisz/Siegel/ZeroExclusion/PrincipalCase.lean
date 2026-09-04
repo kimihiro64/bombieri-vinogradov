@@ -51,7 +51,7 @@ theorem principal_zeroExclusion_of_zetaInterval
       intro hzero
       rw [hzero] at hzetaNeg
       norm_num at hzetaNeg
-  have hproduct := principalLevelCorrection_ne_zero (N := N) htPos
+  have hproduct := principalEulerProduct_ne_zero_of_pos (N := N) htPos
   have htComplexNe : Ne (t : ℂ) 1 := by exact_mod_cast htNe
   change Ne (DirichletCharacter.LFunctionTrivChar N (t : ℂ)) 0
   rw [DirichletCharacter.LFunctionTrivChar_eq_mul_riemannZeta

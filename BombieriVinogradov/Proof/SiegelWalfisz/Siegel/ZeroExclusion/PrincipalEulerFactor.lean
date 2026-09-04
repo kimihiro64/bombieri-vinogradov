@@ -12,7 +12,7 @@ set_option autoImplicit false
 
 namespace BombieriVinogradov.SiegelWalfisz
 
-theorem principalLevelCorrection_ne_zero {N : ℕ} [NeZero N]
+theorem principalEulerProduct_ne_zero_of_pos {N : Nat} [NeZero N]
     {t : ℝ} (ht : 0 < t) :
     Ne (∏ p ∈ N.primeFactors, (1 - (p : ℂ) ^ (-(t : ℂ)))) 0 := by
   apply Finset.prod_ne_zero_iff.mpr

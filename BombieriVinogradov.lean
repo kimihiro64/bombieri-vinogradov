@@ -1,4 +1,5 @@
 import BombieriVinogradov.Assembly.ResearchMode
+import BombieriVinogradov.Assembly.SiegelWalfisz.Main
 import BombieriVinogradov.Assembly.VaughanMeanValue.All
 import BombieriVinogradov.Assembly.VaughanMeanValue.RealEndpoint.Main
 import BombieriVinogradov.Definitions.CharacterSums
@@ -14,11 +15,8 @@ import BombieriVinogradov.Proof.VaughanIdentity.Main
 # Public library root
 
 This module exports the source-aligned target definitions, the proved large
-sieve and Vaughan identity branches, the Vaughan mean-value theorem, and the
-coefficient, analytic-product, and pole-subtraction theorems from Siegel's proof.
-It also exports Strombergsson's source-form positivity lemma near the pole,
-including its coefficient, residue, truncation, and tail infrastructure, and
-the resulting non-effective lower bound and zero exclusion for quadratic
-Dirichlet L-functions. The explicit-formula branch additionally exports the
-optimized Perron approximation and its exact finite contour decomposition.
+sieve, Vaughan identity and mean-value theorems, and the complete
+character-form Siegel-Walfisz theorem with an absolute exponential rate.
+The intermediate Siegel lower bound, quadratic zero exclusion, explicit
+formula and finite contour results remain available through the proof facade.
 -/
