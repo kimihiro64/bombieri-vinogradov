@@ -5,7 +5,7 @@ defaultTargets = ["BombieriVinogradov", "Challenge", "Solution"]
 [[require]]
 name = "PrimeNumberTheoremAnd"
 git = "https://github.com/kimihiro64/PrimeNumberTheoremAnd.git"
-rev = "f8f58c749d6cde8a641348fcd5e4702993651cd6"
+rev = "0f15a38c619298b5cd786d39a84dd4bb8997324c"
 
 [[require]]
 name = "Robin1984"

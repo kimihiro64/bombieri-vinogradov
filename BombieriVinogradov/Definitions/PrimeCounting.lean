@@ -1,6 +1,8 @@
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.NumberTheory.PrimeCounting
-import PrimeNumberTheoremAnd.Defs
+module
+
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+public import Mathlib.NumberTheory.PrimeCounting
+public import PrimeNumberTheoremAnd.Defs
 
 /-!
 # Prime counts in arithmetic progressions
@@ -10,6 +12,8 @@ equation (1.3) and in the downstream `PrimeGapsLib` challenge surface.
 -/
 
 set_option autoImplicit false
+
+@[expose] public section
 
 /-- The number of primes `p <= x` whose image in `ZMod q` is `a`. -/
 noncomputable def Real.primeCountingZMod (x : ℝ) (q : ℕ) (a : ZMod q) : ℕ :=

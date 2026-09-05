@@ -1,5 +1,7 @@
-import BombieriVinogradov.Definitions.PrimeCounting
-import Mathlib.Analysis.SpecialFunctions.Pow.Real
+module
+
+public import BombieriVinogradov.Definitions.PrimeCounting
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 /-!
 # The Bombieri-Vinogradov target
@@ -8,6 +10,10 @@ The target is Maynard's level-of-distribution formulation from equation (1.3),
 with the quantifiers and endpoints used by `PrimeGapsLib` commit
 `1faa7b14e82ddebc2772dfb9153922f01b106477`.
 -/
+
+set_option autoImplicit false
+
+@[expose] public section
 
 open Finset Nat Real
 
