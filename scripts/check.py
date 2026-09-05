@@ -276,15 +276,15 @@ def check_documentation_manifest(root: Path) -> None:
 
 def check_submission_link(root: Path) -> None:
     """Require the current Palomar form and reject its retired predecessor."""
-    readme = (root / "README.md").read_text(encoding="utf-8")
-    if PALOMAR_SUBMISSION_URL not in readme:
+    readme = (root / "README.md").read_bytes()
+    if PALOMAR_SUBMISSION_URL.encode("ascii") not in readme:
         raise CheckFailure(f"README.md must link to {PALOMAR_SUBMISSION_URL}")
     retired = []
-    for relative in public_candidate_paths(root):
+    retired_needle = RETIRED_PALOMAR_FORM.encode("ascii")
+    for relative in tracked_paths(root):
         if not relative.lower().endswith(".md"):
             continue
-        text = (root / relative).read_text(encoding="utf-8")
-        if RETIRED_PALOMAR_FORM in text:
+        if retired_needle in (root / relative).read_bytes():
             retired.append(relative)
     if retired:
         raise CheckFailure("retired Palomar form appears in:\n" + "\n".join(retired))

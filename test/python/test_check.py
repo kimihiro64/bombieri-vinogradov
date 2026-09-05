@@ -91,6 +91,7 @@ def test_submission_link_accepts_current_form(tmp_path: Path) -> None:
         "Submit at https://submit.palomar-registry.org/.\n", encoding="utf-8"
     )
     subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
     check_submission_link(tmp_path)
 
 
@@ -106,8 +107,17 @@ def test_submission_link_rejects_retired_form(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
     with pytest.raises(CheckFailure, match="retired Palomar form"):
         check_submission_link(tmp_path)
+
+
+def test_submission_link_ignores_untracked_binary_markdown(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("https://submit.palomar-registry.org/\n", encoding="utf-8")
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
+    (tmp_path / "generated.md").write_bytes(b"generated\xffartifact")
+    check_submission_link(tmp_path)
 
 
 def write_boundary_fixture(tmp_path: Path, challenge_import: str) -> None:
