@@ -22,6 +22,8 @@ PRIVATE_PATHS: Final[tuple[str, ...]] = (
     "ACTIVE_PROOF_STATE.md",
 )
 MAX_PUBLIC_BYTES: Final[int] = 500 * 1024 * 1024
+PALOMAR_SUBMISSION_URL: Final[str] = "https://submit.palomar-registry.org/"
+RETIRED_PALOMAR_FORM: Final[str] = "PalomarSubmission/issues/new"
 FORBIDDEN_LEAN: Final[re.Pattern[str]] = re.compile(
     r"(?m)^\s*(?:axiom|constant|opaque)\b|\b(?:sorry|admit|native_decide)\b"
 )
@@ -272,6 +274,23 @@ def check_documentation_manifest(root: Path) -> None:
     run((sys.executable, "scripts/check_docbuild_manifest.py"), root)
 
 
+def check_submission_link(root: Path) -> None:
+    """Require the current Palomar form and reject its retired predecessor."""
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    if PALOMAR_SUBMISSION_URL not in readme:
+        raise CheckFailure(f"README.md must link to {PALOMAR_SUBMISSION_URL}")
+    retired = []
+    for relative in public_candidate_paths(root):
+        if not relative.lower().endswith(".md"):
+            continue
+        text = (root / relative).read_text(encoding="utf-8")
+        if RETIRED_PALOMAR_FORM in text:
+            retired.append(relative)
+    if retired:
+        raise CheckFailure("retired Palomar form appears in:\n" + "\n".join(retired))
+    print("submission link: current")
+
+
 def check_metadata(root: Path, *, release: bool) -> None:
     """Run Palomar's metadata validator in template or submission mode."""
     metadata = (root / "formalization.yaml").read_text(encoding="utf-8")
@@ -371,6 +390,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
     try:
         check_public_boundary(root)
         check_documentation_manifest(root)
+        check_submission_link(root)
         check_lean_sources(root)
         check_palomar_boundary(root)
         check_architecture(root)

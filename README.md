@@ -99,4 +99,5 @@ third-party exclusions.
 ## Palomar
 
 Submit only a clean, pushed commit whose release profile and pinned replays all
-pass. The submission metadata does not claim independent expert review.
+pass, then use the current [Palomar submission form](https://submit.palomar-registry.org/).
+The submission metadata does not claim independent expert review.

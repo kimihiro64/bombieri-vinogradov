@@ -10,6 +10,7 @@ from scripts.check import (
     CheckFailure,
     check_lean_sources,
     check_palomar_boundary,
+    check_submission_link,
     is_private_path,
     lean_imports,
     public_candidate_paths,
@@ -83,6 +84,30 @@ def test_ignored_private_lean_does_not_affect_public_policy(tmp_path: Path) -> N
     assert ".research/Private.lean" not in candidates
     assert "Deleted.lean" not in candidates
     check_lean_sources(tmp_path)
+
+
+def test_submission_link_accepts_current_form(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text(
+        "Submit at https://submit.palomar-registry.org/.\n", encoding="utf-8"
+    )
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    check_submission_link(tmp_path)
+
+
+def test_submission_link_rejects_missing_current_form(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text("No submission link.\n", encoding="utf-8")
+    with pytest.raises(CheckFailure, match="README.md must link"):
+        check_submission_link(tmp_path)
+
+
+def test_submission_link_rejects_retired_form(tmp_path: Path) -> None:
+    (tmp_path / "README.md").write_text(
+        "https://submit.palomar-registry.org/\nPalomarSubmission/issues/new\n",
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "init", "--quiet"], cwd=tmp_path, check=True)
+    with pytest.raises(CheckFailure, match="retired Palomar form"):
+        check_submission_link(tmp_path)
 
 
 def write_boundary_fixture(tmp_path: Path, challenge_import: str) -> None:
