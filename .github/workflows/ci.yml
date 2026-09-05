@@ -163,6 +163,8 @@ jobs:
         run: python scripts/boundary_audit.py
       - name: Build the complete formalization
         run: lake build
+      - name: Run the Lean linters
+        run: lake lint
       - name: Upload the completed Lean build
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:

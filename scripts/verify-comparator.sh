@@ -49,7 +49,9 @@ checkout_exact() {
   local destination=$2
   local commit=$3
   if [ ! -d "$destination/.git" ]; then
-    git clone --filter=blob:none "$repository" "$destination"
+    mkdir -p "$destination"
+    git -C "$destination" init --quiet
+    git -C "$destination" remote add origin "$repository"
   else
     git -C "$destination" remote set-url origin "$repository"
   fi
@@ -59,6 +61,10 @@ checkout_exact() {
   fi
   git -C "$destination" fetch --depth 1 origin "$commit"
   git -C "$destination" checkout --detach "$commit"
+  if [ "$(git -C "$destination" rev-parse HEAD)" != "$commit" ]; then
+    echo "error: cached dependency $destination did not resolve to $commit" >&2
+    exit 1
+  fi
 }
 
 checkout_exact "$lean4export_repository" "$lean4export_dir" "$lean4export_commit"

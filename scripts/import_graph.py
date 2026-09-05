@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if __package__ in {None, ""}:
     sys.path.insert(0, str(ROOT))
 
-from scripts.check import lean_imports, public_candidate_paths, strip_lean_comments  # noqa: E402
+from scripts.check import public_candidate_paths  # noqa: E402
+from scripts.lean_source import lean_imports, strip_lean_comments  # noqa: E402
 
 LEAN_RECOMMENDED_LINES: Final[int] = 500
 LEAN_MAX_LINES: Final[int] = 900

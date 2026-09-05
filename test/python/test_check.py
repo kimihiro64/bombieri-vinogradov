@@ -8,16 +8,19 @@ import pytest
 
 from scripts.check import (
     CheckFailure,
-    check_lean_sources,
-    check_palomar_boundary,
     check_submission_link,
     is_private_path,
-    lean_imports,
     public_candidate_paths,
-    strip_lean_comments,
     tracked_public_size,
 )
 from scripts.import_graph import detect_cycles, transitive_dependents
+from scripts.lean_source import (
+    LeanSourceError,
+    check_lean_sources,
+    check_palomar_boundary,
+    lean_imports,
+    strip_lean_comments,
+)
 
 
 def test_private_path_boundary_is_component_aware() -> None:
@@ -83,7 +86,7 @@ def test_ignored_private_lean_does_not_affect_public_policy(tmp_path: Path) -> N
     candidates = public_candidate_paths(tmp_path)
     assert ".research/Private.lean" not in candidates
     assert "Deleted.lean" not in candidates
-    check_lean_sources(tmp_path)
+    check_lean_sources(tmp_path, public_candidate_paths(tmp_path))
 
 
 def test_submission_link_accepts_current_form(tmp_path: Path) -> None:
@@ -153,7 +156,7 @@ def test_palomar_boundary_accepts_mathlib_only_challenge(tmp_path: Path) -> None
 
 def test_palomar_boundary_rejects_project_import(tmp_path: Path) -> None:
     write_boundary_fixture(tmp_path, "Project.Statement")
-    with pytest.raises(CheckFailure, match="is not an exact Mathlib module"):
+    with pytest.raises(LeanSourceError, match="is not an exact Mathlib module"):
         check_palomar_boundary(tmp_path)
 
 
@@ -164,5 +167,5 @@ def test_palomar_boundary_rejects_missing_auto_implicit_guard(tmp_path: Path) ->
         solution.read_text(encoding="utf-8").replace("set_option autoImplicit false\n\n", ""),
         encoding="utf-8",
     )
-    with pytest.raises(CheckFailure, match="Solution.lean: must contain"):
+    with pytest.raises(LeanSourceError, match="Solution.lean: must contain"):
         check_palomar_boundary(tmp_path)

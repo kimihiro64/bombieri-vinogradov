@@ -1,6 +1,7 @@
 name = "BombieriVinogradov"
 version = "0.1.0"
 defaultTargets = ["BombieriVinogradov", "Challenge", "Solution"]
+lintDriver = "batteries/runLinter"
 
 [[require]]
 name = "PrimeNumberTheoremAnd"
