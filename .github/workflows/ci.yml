@@ -102,6 +102,7 @@ jobs:
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
           build: false
+          lint: false
       - name: Fetch the pinned project dependencies
         env:
           MATHLIB_NO_CACHE_ON_UPDATE: "1"
@@ -159,6 +160,7 @@ jobs:
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
           build: false
+          lint: false
       - name: Audit the separately elaborated Palomar boundary
         run: python scripts/boundary_audit.py
       - name: Build the complete formalization
@@ -186,6 +188,7 @@ jobs:
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
           build: false
+          lint: false
       - name: Fetch dependencies
         env:
           MATHLIB_NO_CACHE_ON_UPDATE: "1"
@@ -227,6 +230,7 @@ jobs:
       - uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
         with:
           build: false
+          lint: false
       - name: Fetch dependencies
         env:
           MATHLIB_NO_CACHE_ON_UPDATE: "1"
