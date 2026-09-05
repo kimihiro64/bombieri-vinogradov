@@ -96,7 +96,7 @@ GOBIN="$bin_dir" go install "github.com/zouuup/landrun/cmd/landrun@$landrun_comm
 (cd "$nanoda_dir" && cargo build --release --locked)
 
 cd "$repository_root"
-lake update
+MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
 lake exe cache get
 # Build through the repository's sequential default target before Comparator
 # requests Challenge and Solution directly. On CI this is normally an

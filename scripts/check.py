@@ -267,6 +267,11 @@ def check_architecture(root: Path) -> None:
     run((sys.executable, "scripts/import_graph.py"), root)
 
 
+def check_documentation_manifest(root: Path) -> None:
+    """Require the documentation workspace to cover the project dependency closure."""
+    run((sys.executable, "scripts/check_docbuild_manifest.py"), root)
+
+
 def check_metadata(root: Path, *, release: bool) -> None:
     """Run Palomar's metadata validator in template or submission mode."""
     metadata = (root / "formalization.yaml").read_text(encoding="utf-8")
@@ -365,6 +370,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
     root = repository_root()
     try:
         check_public_boundary(root)
+        check_documentation_manifest(root)
         check_lean_sources(root)
         check_palomar_boundary(root)
         check_architecture(root)

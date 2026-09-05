@@ -1,125 +1,187 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
-# formalization.yaml v0.4. Replace every TEMPLATE value before submitting.
-# Replace a placeholder list with [] only when its adjacent comment permits it;
-# lists described as required must remain nonempty.
 version: "v0.4"
 
 project:
-  name: "TEMPLATE: name of the formalization"
+  name: "Bombieri-Vinogradov in Lean"
   description: >-
-    TEMPLATE: concise public account of the mathematical content and principal
-    results of the formalization
-  # Required nonempty list of name strings or mappings with a nonempty name.
+    A Lean 4 formalization of the Bombieri-Vinogradov theorem in the
+    level-of-distribution form used by modern bounded-prime-gap arguments,
+    including the character large sieve, a corrected finite Vaughan identity,
+    a Vaughan mean-value theorem, a character-form Siegel-Walfisz estimate,
+    the centered weighted theorem, and conversion to prime counts.
   authors:
-    - "TEMPLATE: formalizer name"
-  # Required root licence. Keep this in sync with the Apache-2.0 LICENSE file.
+    - "Jonas Whidden"
   license: "Apache-2.0"
-  # Required nonempty list of name strings or mappings with a nonempty name.
-  # For a thin wrapper, name people responsible for this submitted wrapper;
-  # submission authorization separately covers the underlying formalization.
   responsible_maintainers:
-    - "TEMPLATE: person responsible for this formalization"
-
-# Omit repository for an ordinary project: Palomar treats this submitted
-# repository as the substantive proof development. If this repository is only
-# a thin Comparator wrapper, uncomment and pin the actual formalization in this
-# exact shape:
-# repository:
-#   substantive_formalization:
-#     id: "TEMPLATE: owner/repository or https://github.com/owner/repository"
-#     revision: "TEMPLATE: full 40-character lowercase commit SHA"
+    - "Jonas Whidden"
 
 classification:
-  # Use 1–2 official arXiv identifiers such as math.LO and 1–8 five-character
-  # MSC 2020 identifiers such as 03B35.
-  arxiv: ["TEMPLATE: official arXiv identifier such as math.LO"]
-  msc2020: ["TEMPLATE: five-character MSC 2020 identifier such as 03B35"]
+  arxiv: ["math.NT"]
+  msc2020: ["03B35", "11N13", "11N35"]
 
 sources:
-  # Sources must be nonempty. Every source needs a title and relationship; the
-  # relationship must be exactly formalizes, adapts, independently-proves,
-  # background, or other.
-  # Choose one result origin:
-  # - For a theorem first presented by this formalization, set one source to
-  #   type: original-proof and relationship: other. All additional source
-  #   relationships must be background or other.
-  # - Otherwise, omit type: original-proof and give at least one source a
-  #   formalizes, adapts, or independently-proves relationship. A new proof of
-  #   a known published result is source-based and uses independently-proves.
-  # Type, authors, contributors, id, location, note, license, and
-  # author_endorsement are optional; remove them when genuinely inapplicable.
-  # Authors are bibliographic authors. Contributors record other source roles,
-  # with one name and free-form role such as editor or problem-proposer.
-  # Type is a concise free-text
-  # description such as article, paper, book, formalization, web post, folklore,
-  # conversation, or other. The exact value original-proof is reserved for the
-  # result-origin declaration described above.
-  # Original-result example:
-  # - title: "TEMPLATE: describe the result first presented here"
-  #   type: original-proof
-  #   relationship: other
-  - title: "TEMPLATE: title of the mathematical source"
+  - title: "Small gaps between primes"
     authors:
-      - "TEMPLATE: source author"
-    contributors:
-      - name: "TEMPLATE: source contributor"
-        role: "TEMPLATE: contributor role, for example editor or problem-proposer"
-    id: "TEMPLATE: stable identifier or versioned URL"
-    type: "TEMPLATE: concise source kind, for example article, book, or formalization"
-    location: "TEMPLATE: stable URL or bibliographic location, if available"
-    relationship: "TEMPLATE: formalizes, adapts, independently-proves, background, or other"
-    note: "TEMPLATE: explain relationship or author_endorsement: other; otherwise remove"
-    license: "TEMPLATE: source license or unknown"
-    author_endorsement: "TEMPLATE: participated, endorsed, no-response, not-contacted, declined, n/a, or other"
+      - "James Maynard"
+    id: "arXiv:1311.4600"
+    type: "article"
+    location: "https://arxiv.org/abs/1311.4600"
+    relationship: "formalizes"
+    note: >-
+      Equation (1.3) supplies the level-of-distribution formulation; endpoints
+      and the declaration surface are matched to the pinned PrimeGapsLib consumer.
+    license: "unknown"
+    author_endorsement: "not-contacted"
+  - title: "The Bombieri-Vinogradov theorem"
+    authors:
+      - "R. C. Vaughan"
+    id: "Vaughan lecture notes, 2025"
+    type: "lecture notes"
+    location: "https://personal.science.psu.edu/rcv4/571s25/Class571-06.pdf"
+    relationship: "adapts"
+    note: >-
+      Primary working exposition for the classical large-sieve route. The
+      formal finite Vaughan identity corrects a sign and cutoff mismatch found
+      by checking the displayed formula against its coefficient algebra.
+    license: "unknown"
+    author_endorsement: "not-contacted"
+  - title: "On the large sieve"
+    authors:
+      - "Enrico Bombieri"
+    id: "doi:10.1112/S0025579300005313"
+    type: "article"
+    location: "https://doi.org/10.1112/S0025579300005313"
+    relationship: "background"
+    note: "Historical source for the theorem and large-sieve method."
+    license: "unknown"
+    author_endorsement: "not-contacted"
+  - title: "The density hypothesis for Dirichlet L-series"
+    authors:
+      - "A. I. Vinogradov"
+    id: "Math-Net.Ru: im3080"
+    type: "article"
+    location: "https://www.mathnet.ru/eng/im3080"
+    relationship: "background"
+    note: "Historical independent source for the theorem."
+    license: "unknown"
+    author_endorsement: "not-contacted"
 
 related_formalizations:
-  # Remove this field or use [] when none are known.
-  - id: "TEMPLATE: stable URL or identifier for earlier formalization"
-    relationship: "TEMPLATE: builds-on, adapts, independent, supersedes, or other"
-    note: "TEMPLATE: explain the relationship"
+  - id: "https://github.com/AxiomMath/PrimeGapsLib/commit/1faa7b14e82ddebc2772dfb9153922f01b106477"
+    relationship: "other"
+    note: "Pinned downstream consumer whose Bombieri-Vinogradov hypothesis is matched exactly."
+  - id: "https://github.com/kimihiro64/Robin1984/commit/bfa72aec0c25c8ee29cefe4449d778ff30412bee"
+    relationship: "builds-on"
+    note: "Provides the Riemann-xi divisor and logarithmic-derivative results used in the zero-free branch."
+  - id: "https://github.com/kimihiro64/PrimeNumberTheoremAnd/commit/f8f58c749d6cde8a641348fcd5e4702993651cd6"
+    relationship: "builds-on"
+    note: "Provides prime-counting definitions and analytic-number-theory infrastructure."
 
 status:
   scope: >-
-    TEMPLATE: state exactly what is and is not formalized, including any weaker
-    theorem, changed hypotheses, or omitted material.
-  # Count the proof development, excluding Challenge.lean's deliberate sorry.
-  # Replace each count with an unquoted nonnegative integer, for example 0.
-  sorry_count: "TEMPLATE: unquoted nonnegative integer"
-  sorry_in_definitions: "TEMPLATE: unquoted nonnegative integer"
-  axioms: ["TEMPLATE: declaration names, or replace this list with []"]
-  # status.main_results is optional. Add it only when a short curated
-  # project-level list is useful; it need not mirror Comparator declarations.
+    The exact theorem is proved for every real theta < 1/2 and every real
+    A >= 1, uniformly for every real x >= 3, with inclusive modulus cutoff
+    floor(x^theta), reduced residue classes, and centering by pi(x)/phi(q).
+    The project also proves the supporting character large sieve, finite
+    Vaughan identity, Vaughan mean-value estimate, character-form
+    Siegel-Walfisz theorem, centered weighted theorem, and prime-power/Abel
+    conversion. It does not assert the endpoint theta = 1/2, the
+    Elliott-Halberstam conjecture, bounded prime gaps, or independent expert
+    review.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
+  main_results:
+    - "BombieriVinogradov.bombieriVinogradov"
+    - "BombieriVinogradov.WeightedBombieriVinogradov.weighted_bombieri_vinogradov"
+    - "BombieriVinogradov.SiegelWalfisz.siegel_walfisz"
+    - "BombieriVinogradov.VaughanMeanValue.vaughanMeanValue"
+    - "BombieriVinogradov.VaughanIdentity.vaughanIdentity"
+    - "BombieriVinogradov.LargeSieve.characterLargeSieve"
 
 automation:
   methods:
-    - method: "TEMPLATE: manual, copilot, agent, autonomous, or other"
-      models: ["TEMPLATE: model names, or replace this list with []"]
-      framework: "TEMPLATE: framework name, or n/a"
-      tool_setup: "TEMPLATE: exact detail, such as AI-assisted, editors, tactics, agents, or other tools used"
+    - method: "agent"
+      models: ["OpenAI Codex, GPT-5 series"]
+      framework: "Codex desktop and Lean/Lake"
+      tool_setup: >-
+        AI-assisted source study, proof design, focused Lean probes, theorem
+        proving, refactoring, linting, and verification under human direction.
       cost:
-        wall_time: "TEMPLATE: approximate elapsed effort"
-        spend_usd: "TEMPLATE: amount, subscription-based, or not tracked"
-        hardware: "TEMPLATE: local machine, API-only, or other"
-      prompting_notes: "TEMPLATE: representative prompting notes, or n/a"
-  spend_usd: "TEMPLATE: total amount, subscription-based, or not tracked"
-  notes: "TEMPLATE: describe the overall human and automation workflow"
+        wall_time: "interactive development over multiple days; exact total not tracked"
+        spend_usd: "subscription-based; marginal spend not tracked"
+        hardware: "local Windows workstation with WSL and GitHub Actions"
+      prompting_notes: >-
+        Persistent goal and obligation records, source-fidelity checks,
+        theorem-sized probes, dependency audits, and mandatory kernel replay
+        were used to constrain autonomous work.
+  spend_usd: "subscription-based; exact total not tracked"
+  notes: >-
+    The proof was developed with extensive AI assistance under human direction.
+    All released claims are checked by Lean; Comparator, NanoDa, and the default
+    Lean kernel provide additional replay and boundary checks.
 
 fidelity:
-  divergences: "TEMPLATE: all known divergences from the cited source, or none known"
+  divergences: >-
+    The headline quantifier surface follows Maynard equation (1.3) and the
+    pinned PrimeGapsLib consumer. The classical proof is reconstructed from
+    Vaughan's exposition. A displayed finite Vaughan identity in the working
+    notes had a sign and cutoff mismatch; the formal statement uses the
+    coefficient identity verified from the proof algebra and finite boundary
+    cases. Explicit constants 36 and 200000 are used for the character large
+    sieve and Vaughan mean-value theorem; the headline comparison constant
+    remains existential and uniform in x.
 
 review:
-  status: "TEMPLATE: honest review status, for example self-assessed"
+  status: "self-assessed"
   reviewers:
-    - "TEMPLATE: reviewer name, or none"
-  notes: "TEMPLATE: describe statement audits and mathematical review performed"
+    - "none"
+  notes: >-
+    The statement was mechanically compared across Challenge and Solution and
+    audited against the pinned PrimeGapsLib consumer. Source quantifiers,
+    endpoints, centering, direct imports, assumptions, and declaration
+    dependencies were checked. No independent expert mathematical review has
+    yet been completed.
 
 alignment:
-  namespace: "TEMPLATE: project namespace"
+  namespace: "BombieriVinogradov"
   statements:
-    - source: "TEMPLATE: source theorem or section"
-      lean: "TEMPLATE: fully qualified Lean declaration"
-      module: "TEMPLATE: Lean module containing the declaration"
-      status: "TEMPLATE: proved, partial, adapted, or other honest description"
-      note: "TEMPLATE: explain the correspondence and any qualifications"
+    - source: "Maynard (2015), equation (1.3), with the pinned PrimeGapsLib endpoints"
+      lean: "BombieriVinogradov.bombieriVinogradov"
+      module: "Solution"
+      status: "proved"
+      note: "Exact public Challenge/Solution theorem and downstream consumer surface."
+    - source: "Vaughan (2025), primitive character large sieve"
+      lean: "BombieriVinogradov.LargeSieve.characterLargeSieve"
+      module: "BombieriVinogradov.Proof.LargeSieve.CharacterReduction"
+      status: "proved"
+      note: "Arbitrary integer interval with explicit coefficient 36."
+    - source: "Vaughan (2025), finite Vaughan identity"
+      lean: "BombieriVinogradov.VaughanIdentity.vaughanIdentity"
+      module: "BombieriVinogradov.Proof.VaughanIdentity.Main"
+      status: "adapted"
+      note: "Corrected sign and cutoff convention derived from the coefficient algebra."
+    - source: "Vaughan (2025), Basic Mean Value Theorem"
+      lean: "BombieriVinogradov.VaughanMeanValue.vaughanMeanValue"
+      module: "BombieriVinogradov.Assembly.VaughanMeanValue.RealEndpoint.Main"
+      status: "proved"
+      note: "Real endpoint version with explicit coefficient 200000."
+    - source: "Classical Siegel-Walfisz input in the large-sieve proof"
+      lean: "BombieriVinogradov.SiegelWalfisz.siegel_walfisz"
+      module: "BombieriVinogradov.Assembly.SiegelWalfisz.Main"
+      status: "proved"
+      note: "One absolute exponential rate and uniform coefficients for logarithmic modulus ranges."
+    - source: "Classical weighted Bombieri-Vinogradov intermediate estimate"
+      lean: "BombieriVinogradov.WeightedBombieriVinogradov.weighted_bombieri_vinogradov"
+      module: "BombieriVinogradov.Assembly.WeightedBombieriVinogradov.Main"
+      status: "proved"
+      note: "Globally centered maximal von Mangoldt discrepancy for every real endpoint at least three."
+    - source: "Partial summation and prime-power removal"
+      lean: "BombieriVinogradov.PrimeCountingConversion.weighted_to_prime_counting"
+      module: "BombieriVinogradov.Assembly.PrimeCountingConversion.Main"
+      status: "proved"
+      note: "Exact conversion to pi(x;q,a)-pi(x)/phi(q), including bounded endpoints."
 
-acknowledgements: "TEMPLATE: libraries, tools, and people to credit"
+acknowledgements: >-
+  The project builds on Lean, mathlib, Robin1984, PrimeNumberTheoremAnd,
+  PrimeGapsLib, and the cited mathematical literature.

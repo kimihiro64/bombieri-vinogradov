@@ -185,6 +185,8 @@ jobs:
         with:
           build: false
       - name: Fetch dependencies
+        env:
+          MATHLIB_NO_CACHE_ON_UPDATE: "1"
         run: lake update
       - name: Restore the completed Lean build
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
@@ -224,6 +226,8 @@ jobs:
         with:
           build: false
       - name: Fetch dependencies
+        env:
+          MATHLIB_NO_CACHE_ON_UPDATE: "1"
         run: lake update
       - name: Restore the completed Lean build
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
@@ -280,14 +284,41 @@ jobs:
           then
             exit 1
           fi
+          if grep -F 'Overfull \hbox' paper/build/research-paper.log; then
+            exit 1
+          fi
           test -s paper/build/research-paper.pdf
           pdfinfo paper/build/research-paper.pdf
           grep -F '% SPDX-License-Identifier: Apache-2.0 OR CC-BY-4.0' \
             paper/research-paper.tex
-          pdftotext paper/build/research-paper.pdf - \
-            | grep -F 'Apache License 2.0'
-          pdftotext paper/build/research-paper.pdf - \
-            | grep -F 'CC BY 4.0'
+          pdftotext -layout paper/build/research-paper.pdf \
+            paper/build/research-paper.txt
+          grep -F 'Apache License 2.0' paper/build/research-paper.txt
+          grep -F 'CC BY 4.0' paper/build/research-paper.txt
+          grep -F 'Theorem 2.1' paper/build/research-paper.txt
+          grep -F 'π(x; q, a)' paper/build/research-paper.txt
+          grep -F 'φ(q)' paper/build/research-paper.txt
+          grep -F 'c > 0' paper/build/research-paper.txt
+          grep -F 'x ≥ 3' paper/build/research-paper.txt
+          compact=$(tr -d '[:space:]' < paper/build/research-paper.txt)
+          for declaration in \
+            BombieriVinogradov.LargeSieve.characterLargeSieve \
+            BombieriVinogradov.SiegelWalfisz.siegel_walfisz \
+            BombieriVinogradov.WeightedBombieriVinogradov.weighted_bombieri_vinogradov \
+            BombieriVinogradov.PrimeCountingConversion.weighted_to_prime_counting \
+            BombieriVinogradov.bombieriVinogradov
+          do
+            grep -F "$declaration" <<< "$compact"
+          done
+          if grep -F \
+            -e '\theta' \
+            -e '\sum' \
+            -e '\frac' \
+            -e '\sqrt' \
+            paper/build/research-paper.txt
+          then
+            exit 1
+          fi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: research-paper

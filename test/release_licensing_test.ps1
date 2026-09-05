@@ -54,11 +54,11 @@ try {
   }
   foreach ($package in $manifestPackages) {
     $encodedUrl = [Net.WebUtility]::HtmlEncode([string]$package.url)
-    if (-not $indexText.Contains($encodedUrl, [StringComparison]::Ordinal)) {
+    if ($indexText.IndexOf($encodedUrl, [StringComparison]::Ordinal) -lt 0) {
       throw "Licensing index omits dependency '$($package.url)'."
     }
   }
-  if (-not $indexText.Contains('Lean 4 toolchain', [StringComparison]::Ordinal)) {
+  if ($indexText.IndexOf('Lean 4 toolchain', [StringComparison]::Ordinal) -lt 0) {
     throw 'Licensing index omits the Lean 4 toolchain.'
   }
 

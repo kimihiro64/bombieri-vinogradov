@@ -25,7 +25,7 @@ if (-not $UsePreparedLicensing) {
 
 $templateText = [IO.File]::ReadAllText($template)
 foreach ($forbidden in @('<script', '<iframe', 'http://', 'https://')) {
-  if ($templateText.Contains($forbidden, [StringComparison]::OrdinalIgnoreCase)) {
+  if ($templateText.IndexOf($forbidden, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
     throw "Offline documentation template contains forbidden text '$forbidden'."
   }
 }

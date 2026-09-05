@@ -52,8 +52,23 @@ $entries.Add([PSCustomObject]@{
 })
 
 if ($IncludeDependencyLicenses) {
-  $gitCommand = Get-Command git -ErrorAction Stop
-  $leanCommand = Get-Command lean -ErrorAction Stop
+  $gitCandidates = @(
+    Get-Command git -CommandType Application -ErrorAction Stop |
+      Sort-Object Source -Unique
+  )
+  $leanCandidates = @(
+    Get-Command lean -CommandType Application -ErrorAction Stop |
+      Sort-Object Source -Unique
+  )
+  if ($gitCandidates.Count -lt 1 -or $leanCandidates.Count -lt 1) {
+    throw 'Unable to resolve Git and Lean executables for dependency licensing.'
+  }
+  $gitPath = $gitCandidates[0].Source
+  $leanPath = $leanCandidates[0].Source
+  if (-not (Test-Path -LiteralPath $gitPath -PathType Leaf) -or
+      -not (Test-Path -LiteralPath $leanPath -PathType Leaf)) {
+    throw 'Resolved Git or Lean executable is not a regular file.'
+  }
   $packagesRoot = (Resolve-Path -LiteralPath (Join-Path $repositoryRoot '.lake/packages')).Path
 
   function Normalize-GitUrl([string]$Url) {
@@ -62,7 +77,7 @@ if ($IncludeDependencyLicenses) {
 
   $packageDirectoriesByUrl = @{}
   foreach ($directory in Get-ChildItem -LiteralPath $packagesRoot -Directory) {
-    $remote = (& $gitCommand.Source -C $directory.FullName config --get remote.origin.url 2>$null)
+    $remote = (& $gitPath -C $directory.FullName config --get remote.origin.url 2>$null)
     if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($remote)) {
       $packageDirectoriesByUrl[(Normalize-GitUrl $remote)] = $directory.FullName
     }
@@ -115,7 +130,7 @@ if ($IncludeDependencyLicenses) {
     })
   }
 
-  $leanPrefixText = (& $leanCommand.Source --print-prefix)
+  $leanPrefixText = (& $leanPath --print-prefix)
   if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($leanPrefixText)) {
     throw 'Unable to resolve the active Lean toolchain prefix.'
   }
@@ -132,7 +147,7 @@ if ($IncludeDependencyLicenses) {
   foreach ($notice in $leanNotices) {
     Copy-Item -LiteralPath $notice.FullName -Destination $leanOutput
   }
-  $leanVersion = ((& $leanCommand.Source --version) -join ' ').Trim()
+  $leanVersion = ((& $leanPath --version) -join ' ').Trim()
   $entries.Add([PSCustomObject]@{
     Name = 'Lean 4 toolchain'
     Source = $leanVersion

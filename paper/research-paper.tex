@@ -6,8 +6,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[nopatch=footnote]{microtype}
-\usepackage[margin=1.1in]{geometry}
+\usepackage[margin=1.05in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{array}
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{hyperref}
@@ -22,29 +23,34 @@
   pdfauthor={Jonas Whidden}
 }
 
+\newcommand{\leanname}[1]{\nolinkurl{#1}}
+
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{corollary}[theorem]{Corollary}
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-\title[Formalizing Bombieri--Vinogradov in Lean]{Formalizing the Bombieri--Vinogradov Theorem in Lean:\\
-Project Specification and Proof Architecture}
+\title[Formalizing Bombieri--Vinogradov in Lean]{Formalizing the Bombieri--Vinogradov Theorem in Lean}
 \author{Jonas Whidden}
-\date{\today}
+\date{2026}
 
 \begin{document}
 
 \begin{abstract}
-We specify a source-faithful Lean 4 formalization of the
-Bombieri--Vinogradov theorem in the level-of-distribution form used by modern
-bounded-prime-gap arguments.  This document fixes the target statement, its
-relationship to the literature, and the intended large-sieve proof
-architecture.  The definitions and target proposition compile, but the
-Bombieri--Vinogradov proof itself remains open at this stage.
+We formalize the Bombieri--Vinogradov theorem in Lean 4 in the
+level-of-distribution form used by modern bounded-prime-gap arguments.
+For every real $\theta<1/2$ and $A\geq1$, one constant controls, for every
+real $x\geq3$, the sum over $q\leq\lfloor x^\theta\rfloor$ of the largest
+reduced-residue-class discrepancy
+$|\pi(x;q,a)-\pi(x)/\varphi(q)|$ by $x/(\log x)^A$.
+The proof develops a character large sieve, a corrected finite Vaughan
+identity, a Vaughan mean-value theorem, a character-form Siegel--Walfisz
+estimate, a globally centered weighted theorem, and an equality-safe
+partial-summation conversion to prime counts. The final declaration is
+kernel checked without project-local axioms or numerical certificates.
 \end{abstract}
 
 \maketitle
@@ -58,29 +64,31 @@ the \href{https://www.apache.org/licenses/LICENSE-2.0}{Apache License 2.0} or
 
 \section{Introduction}
 
-The Bombieri--Vinogradov theorem says, roughly, that primes are equidistributed
-on average among reduced residue classes for moduli almost as large as
-$x^{1/2}$.  It replaces an unavailable pointwise estimate of comparable
-strength with an averaged result and is a central input to sieve arguments.
-In particular, the level-of-distribution formulation below is the hypothesis
-used in Maynard's bounded-prime-gap framework \cite{Maynard2015} and in the
-downstream Lean project \cite{PrimeGapsLib}.
+The Bombieri--Vinogradov theorem replaces a pointwise distribution estimate
+for primes in arithmetic progressions by an average over moduli. It supplies
+level of distribution $1/2$ in the usual strict sense: every fixed exponent
+below $1/2$ is allowed, but the endpoint itself is not asserted. This average
+distribution theorem is a central analytic input to sieve methods and, in
+particular, to Maynard's bounded-gap framework \cite{Maynard2015}.
 
-The present project targets the analytic theorem itself.  It does not reprove
-the bounded-gap consequence, which is already the responsibility of the
-downstream development.
+The present development proves the analytic theorem itself. Its public
+statement is matched to the hypothesis consumed by the pinned
+\texttt{PrimeGapsLib} development \cite{PrimeGapsLib}. We do not formalize
+the bounded-gap consequence here, and we do not assert Elliott--Halberstam or
+any distribution exponent at least $1/2$.
 
-\section{Statement of the problem}
+\section{Exact statement and conventions}
 
-For $x\in\mathbb R$, let $\pi(x)$ be the number of primes at most $x$.
+For a real cutoff $x$, let $\pi(x)$ denote the number of primes $p\leq x$.
 For $q\in\mathbb N$ and $a\in(\mathbb Z/q\mathbb Z)^\times$, let
-$\pi(x;q,a)$ be the number of primes $p\leq x$ whose residue modulo $q$ is
-$a$, and let $\varphi(q)$ be Euler's totient.
+$\pi(x;q,a)$ count primes $p\leq x$ whose image modulo $q$ is $a$.
+All cutoff inequalities are inclusive. Euler's totient is denoted
+$\varphi(q)$.
 
-\begin{theorem}[Bombieri--Vinogradov target]\label{thm:bv}
+\begin{theorem}[Bombieri--Vinogradov]\label{thm:bv}
 For every $\theta\in\mathbb R$ with $\theta<\tfrac12$ and every
-$A\in\mathbb R$ with $A\geq1$, there is a $c\in\mathbb R$, $c>0$, such that
-for every $x\in\mathbb R$, $x\geq3$,
+$A\in\mathbb R$ with $A\geq1$, there is a real $c>0$ such that, for every
+real $x\geq3$,
 \[
   \sum_{1\leq q\leq\lfloor x^\theta\rfloor}
   \max_{a\in(\mathbb Z/q\mathbb Z)^\times}
@@ -89,81 +97,228 @@ for every $x\in\mathbb R$, $x\geq3$,
 \]
 \end{theorem}
 
-The strict inequality $\theta<\tfrac12$, the lower bounds $A\geq1$ and
-$x\geq3$, and the inclusive modulus cutoff are part of the formal target.
+In Lean the maximum is an indexed supremum over the finite type of units.
+When $\lfloor x^\theta\rfloor=0$, the modulus sum is empty. The definition
+therefore also handles negative $\theta$ without an auxiliary case in the
+public statement.
 
-\section{Relation to the literature}
+The public theorem is
+\leanname{BombieriVinogradov.bombieriVinogradov} in
+\texttt{Solution.lean}. Its type is the root proposition
+\texttt{BombieriVinogradov}, whose exact average form is connected to
+\leanname{BombieriVinogradov.averagePrimeDiscrepancy} by reflexivity.
+
+\section{Sources and fidelity}
 
 The theorem originates in independent work of Bombieri \cite{Bombieri1965}
-and A.~I. Vinogradov \cite{Vinogradov1965}.  Our exact quantifier surface is
-adapted from equation~(1.3) of Maynard \cite{Maynard2015}, with endpoints
-matched to the challenge statement in \texttt{PrimeGapsLib} commit
-\path{1faa7b14e82ddebc2772dfb9153922f01b106477} \cite{PrimeGapsLib}.
+and A.~I. Vinogradov \cite{Vinogradov1965}. The exact quantifier surface used
+here follows equation~(1.3) of Maynard \cite{Maynard2015}, with endpoints and
+definitions aligned to \texttt{PrimeGapsLib} commit
+\path{1faa7b14e82ddebc2772dfb9153922f01b106477}. Vaughan's lecture notes
+\cite{Vaughan2025} are the primary working exposition for the classical
+large-sieve proof, with Harper's notes \cite{Harper2015} as background.
 
-For the proof, Vaughan's large-sieve lecture notes \cite{Vaughan2025} are the
-primary working exposition.  Harper's elementary-methods notes
-\cite{Harper2015} provide supplementary analytic-number-theory background.
-These expository sources guide the proof organization; they are not claimed as
-the origin of the theorem.
+The development is a reconstruction rather than a line-by-line transcription.
+One displayed finite Vaughan identity in the working exposition had a sign
+and cutoff mismatch with its coefficient algebra. Before formalization, the
+identity was expanded on squarefree composite and unequal-cutoff cases. The
+formal theorem uses the convention established by the coefficient identity
+and retains the source positivity hypotheses even where the final algebraic
+equality does not use them. This is recorded as an adaptation, not silently
+presented as a verbatim formalization.
 
 \section{Proof architecture}
 
-The selected route is the classical large-sieve proof.  The dependency graph
-is organized from stable, reusable analytic components toward the final
-statement:
-\begin{enumerate}
-  \item prove the primitive Dirichlet-character large-sieve inequality;
-  \item formalize Vaughan's identity for the von Mangoldt function;
-  \item combine these in a mean-value estimate for character sums;
-  \item isolate the Siegel--Walfisz input for small moduli;
-  \item prove a weighted Bombieri--Vinogradov estimate for the Chebyshev sum;
-  \item remove prime powers and partial-sum weights to obtain
-        Theorem~\ref{thm:bv} for $\pi(x;q,a)$.
-\end{enumerate}
+The repository follows an inward-to-outward dependency order:
+definitions, reusable helpers, independent proof branches, assembly modules,
+and finally the public boundary. The mathematical route has six stages.
 
-Independent branches are intended to depend on small definition and helper
-modules, not on one another.  The final assembly module will import the branch
-results only after their interfaces have stabilized.  The first live proof
-obligation is item~1.
+\subsection{The additive and character large sieves}
 
-\section{Formalization and verification}
+The additive large sieve is proved for separated Farey samples. The proof
+isolates the spacing estimate, Fejer majorization, Schur-type operator bound,
+duality, and the final smooth-majorant argument in separate modules. It is
+then transferred to primitive Dirichlet characters using Gauss-sum inversion
+and Parseval on the unit group.
 
-The target declaration and source module are
+For an integer interval $M<n\leq M+N$, the resulting character estimate has
+the explicit form
+\[
+ \sum_{1\leq q\leq Q}\frac q{\varphi(q)}
+ \sum_{\chi\ ({\rm mod}\ q)}^{*}
+ \left|\sum_{M<n\leq M+N}a_n\chi(n)\right|^2
+ \leq 36(N+Q^2)\sum_{M<n\leq M+N}|a_n|^2.
+\]
+The constant $36$ is the exact witness exported by the checked declaration
 \begin{center}
-\texttt{BombieriVinogradov.Statement}\\
-\texttt{BombieriVinogradov/Definitions/Statement.lean}.
+\leanname{BombieriVinogradov.LargeSieve.characterLargeSieve}.
 \end{center}
-Its supporting definitions are:
-\begin{itemize}
-  \item \texttt{Real.primeCountingZMod};
-  \item \texttt{BombieriVinogradov.primeCounting};
-  \item \texttt{BombieriVinogradov.primeDiscrepancy};
-  \item \texttt{BombieriVinogradov.averagePrimeDiscrepancy}.
-\end{itemize}
 
-The repository is pinned to Lean~4.33.1 and the matching mathlib release.  At
-this stage only the definitions and proposition are kernel checked.  The
-public \texttt{Challenge.lean} and \texttt{Solution.lean} files deliberately
-expose a project-specific research placeholder, not Theorem~\ref{thm:bv}.
-They will be replaced by the real theorem surface only after the proof compiles.
-Consequently, current Comparator or NanoDa success is infrastructure evidence,
-not evidence that Bombieri--Vinogradov has been proved.
+\subsection{Vaughan's identity}
+
+The finite Vaughan identity is proved first as an equality of arithmetic
+functions and then applied coefficientwise to arbitrary complex test
+functions. Splitting the divisor ranges yields two Type~I contributions, a
+Type~II contribution, and the short initial Mangoldt sum. The formal owner is
+\leanname{BombieriVinogradov.VaughanIdentity.vaughanIdentity}; its theorem
+comment explicitly records the corrected sign and cutoff convention.
+
+\subsection{The Vaughan mean-value estimate}
+
+The large sieve is applied to the Vaughan decomposition branch by branch.
+Rather than hiding the endpoint conversion in coercion simplification, the
+natural-cutoff theorem and the comparison with the real majorant are separate
+lemmas. The final theorem
+\leanname{BombieriVinogradov.VaughanMeanValue.vaughanMeanValue} uses the
+explicit coefficient $200000$. This coefficient is intentionally coarse but
+fully checked and uniform over the stated parameters.
+
+\subsection{Siegel--Walfisz}
+
+The small-conductor range requires a character-form Siegel--Walfisz theorem.
+The development proves a zero-free alternative, treats the possible real
+quadratic exceptional zero, derives the needed explicit formula, and splits
+large and bounded heights. Two pinned dependencies provide reused analytic
+infrastructure: \texttt{Robin1984} supplies Riemann-xi divisor and
+logarithmic-derivative identities, while \texttt{PrimeNumberTheoremAnd}
+supplies prime-counting definitions and related analytic foundations.
+
+\begin{samepage}
+The exported theorem
+\begin{center}
+\leanname{BombieriVinogradov.SiegelWalfisz.siegel_walfisz}
+\end{center}
+states that there is one absolute rate $a>0$ such that, for every logarithmic
+modulus exponent
+$B>0$, a coefficient $C_B>0$ uniformly bounds every nonprincipal character
+sum by
+\[
+  C_B x\exp\!\left(-a\sqrt{\log x}\right)
+\]
+whenever the modulus is at most $(\log x)^B$. The rate is outside the
+quantifier over $B$; this quantifier order is essential in the later split.
+\end{samepage}
+
+\subsection{The centered weighted theorem}
+
+Character orthogonality converts the progression discrepancy into character
+sums. The proof separates small and large conductors, uses the
+Siegel--Walfisz theorem in the former range and the Vaughan mean-value theorem
+in the latter, and keeps the conductor weights required by the source
+estimate. Logarithmic powers and square-root terms are absorbed only after a
+strict positive gap below $1/2$ has been chosen.
+
+The resulting declaration below proves, for all real $X\geq3$,
+\begin{center}
+\leanname{BombieriVinogradov.WeightedBombieriVinogradov.}\\
+\leanname{weighted_bombieri_vinogradov}.
+\end{center}
+\[
+ \sum_{1\leq q\leq\lfloor X^\theta\rfloor}
+ \max_{a}\max_{y\leq\lfloor X\rfloor}
+ \left|\psi(y;q,a)-\frac{\psi(y)}{\varphi(q)}\right|
+ \ll_{\theta,A}\frac X{(\log X)^A}.
+\]
+The center is the global finite Mangoldt sum $\psi(y)/\varphi(q)$, exactly
+the convention required by the later prime-counting consumer.
+
+\subsection{Prime powers and reciprocal-log Abel summation}
+
+For natural $N$, define the progression and global prime-log sums
+$\vartheta(N;q,a)$ and $\vartheta(N)$. The formalization proves
+\[
+ 0\leq\psi(N)-\vartheta(N)\leq2\sqrt N\log N
+\]
+and the analogous progression error by comparison with the global error.
+After centering, every theta-prefix is therefore controlled by the weighted
+maximum plus $4\sqrt X\log X$.
+
+Let $F(n)$ be the centered theta coefficient. Since $F(1)=0$, equality-safe
+finite Abel summation from $2$ to $N$ gives
+\[
+ \left|\sum_{2\leq n\leq N}\frac{F(n)}{\log n}\right|
+ \leq \frac{D}{\log2}
+\]
+whenever every cumulative sum through $N$ has absolute value at most $D$.
+The proof explicitly covers the equal-endpoint and empty-interval cases; no
+strict cutoff is smuggled into the theorem.
+
+Division by $\log p$ turns the prime-log weights into the exact inclusive
+prime count. Summing the prime-power error over moduli contributes
+\[
+ \lfloor X^\theta\rfloor\,4\sqrt X\log X.
+\]
+With $\delta=1/2-\theta>0$, the eventual inequality
+$(\log X)^{A+1}\leq X^\delta$ absorbs this term into
+$4X/(\log X)^A$. A symbolic bounded-interval rescaling extends the estimate
+to every $X\geq3$; no finite numerical verification is used.
+
+\section{Declaration ledger}
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.60\textwidth}}
+\toprule
+Role & Lean declaration and status \\
+\midrule
+Character large sieve &
+\leanname{BombieriVinogradov.LargeSieve.characterLargeSieve} --- proved \\
+Finite Vaughan identity &
+\leanname{BombieriVinogradov.VaughanIdentity.vaughanIdentity} --- proved, adapted convention \\
+Vaughan mean value &
+\leanname{BombieriVinogradov.VaughanMeanValue.vaughanMeanValue} --- proved \\
+Siegel--Walfisz &
+\leanname{BombieriVinogradov.SiegelWalfisz.siegel_walfisz} --- proved \\
+Weighted theorem &
+\leanname{BombieriVinogradov.WeightedBombieriVinogradov.weighted_bombieri_vinogradov} --- proved \\
+Prime-count conversion &
+\leanname{BombieriVinogradov.PrimeCountingConversion.weighted_to_prime_counting} --- proved \\
+Public theorem &
+\leanname{BombieriVinogradov.bombieriVinogradov} --- proved \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This curated ledger is declaration based: each entry names its checked owner.
+The public repository paths mirror the dot-separated module names under
+\url{https://github.com/kimihiro64/bombieri-vinogradov/tree/main/}.
+
+\section{Verification and trust boundary}
+
+The project is pinned to Lean~4.33.1 and Mathlib~4.33.1. The final project
+declaration uses only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. The deliberate hole in \texttt{Challenge.lean} is the
+Palomar problem statement and is excluded from the project sorry count;
+\texttt{Solution.lean} contains no placeholder.
+
+Challenge imports only Mathlib and defines its statement vocabulary directly.
+Solution imports the project proof. Both disable automatic implicit
+parameters. A boundary audit separately elaborates all configured definition
+and theorem pairs, and the pinned Comparator checks their exported forms.
+NanoDa and Lean's default kernel provide independent replays of the Solution
+artifact. These checks establish formal derivability and statement matching;
+they do not establish historical novelty, source fidelity, or expert review
+on their own.
+
+No generated finite certificate is part of the proof. Automation was used for
+source search, proof design, focused Lean probes, routine algebra, refactoring,
+and verification. The public Lean terms, rather than the agent transcript or
+private research records, are the proof object presented for checking.
 
 \section{Limitations and review status}
 
-No proof of Theorem~\ref{thm:bv} is present yet.  In particular, the character
-large sieve, Vaughan identity, Siegel--Walfisz estimate, weighted theorem, and
-conversion to prime counts remain open.  The target statement has been checked
-against Maynard's formulation and the cited downstream Lean surface, but it has
-not received independent expert mathematical review.  Automated builds and
-source-policy checks do not substitute for such review.
+The formal theorem stops strictly below distribution exponent $1/2$ and does
+not imply Elliott--Halberstam. The project does not formalize the downstream
+bounded-gap theorem. The source statement, endpoints, centered convention,
+and dependency assumptions have been self-audited and mechanically checked,
+but the work has not yet received independent expert mathematical review.
 
 \section*{Acknowledgements}
 
-We thank the authors and maintainers of Lean, mathlib, and
-\texttt{PrimeGapsLib}.  The formalization workflow uses AI assistance under
-human direction; all claims remain subject to kernel checking and mathematical
-review.
+We thank the authors and maintainers of Lean, Mathlib, \texttt{Robin1984},
+\texttt{PrimeNumberTheoremAnd}, and \texttt{PrimeGapsLib}, and the authors
+of the cited mathematical sources. The development used AI assistance under
+human direction.
 
 \begin{thebibliography}{9}
 
@@ -197,9 +352,21 @@ A.~J. Harper,
 
 \bibitem{PrimeGapsLib}
 Axiom Math,
-\emph{PrimeGapsLib}, Lean formalization repository, commit
+\emph{PrimeGapsLib}, Lean repository, commit
 \path{1faa7b14e82ddebc2772dfb9153922f01b106477}.
 \url{https://github.com/AxiomMath/PrimeGapsLib}.
+
+\bibitem{Robin1984}
+J.~Whidden,
+\emph{Robin1984}, Lean repository, commit
+\path{bfa72aec0c25c8ee29cefe4449d778ff30412bee}.
+\url{https://github.com/kimihiro64/Robin1984}.
+
+\bibitem{PrimeNumberTheoremAnd}
+J.~Whidden,
+\emph{PrimeNumberTheoremAnd}, Lean repository, commit
+\path{f8f58c749d6cde8a641348fcd5e4702993651cd6}.
+\url{https://github.com/kimihiro64/PrimeNumberTheoremAnd}.
 
 \end{thebibliography}
 

@@ -2,56 +2,71 @@
 
 [![CI](https://github.com/kimihiro64/bombieri-vinogradov/actions/workflows/ci.yml/badge.svg)](https://github.com/kimihiro64/bombieri-vinogradov/actions/workflows/ci.yml)
 
-A source-faithful Lean 4 formalization of the Bombieri-Vinogradov theorem in the level-of-distribution form used by modern bounded-prime-gap arguments.
+A Lean 4 formalization of the Bombieri-Vinogradov theorem in the
+level-of-distribution form used by modern bounded-prime-gap arguments.
 
-## Problem
+## Theorem
 
-**The Bombieri-Vinogradov theorem**
+For every real `theta < 1/2` and every real `A >= 1`, there is a real
+`c > 0` such that for every real `x >= 3`,
 
-For every real theta < 1/2 and every real A >= 1, there exists a real c > 0 such that for every real x >= 3, the sum over 1 <= q <= floor(x^theta) of the maximum over reduced residue classes a modulo q of |pi(x; q, a) - pi(x)/phi(q)| is at most c*x/(log x)^A.
+```text
+sum_{1 <= q <= floor(x^theta)}
+  max_{a in (ZMod q)^x} |pi(x; q, a) - pi(x)/phi(q)|
+    <= c*x/(log x)^A.
+```
 
-## Current status
+The modulus cutoff is inclusive, the maximum is over reduced residue classes,
+and the theorem does not claim the endpoint `theta = 1/2`.
 
-This repository begins in research mode. `Challenge.lean` and `Solution.lean`
-currently contain a clearly marked project-specific placeholder so that Lean,
-documentation, and Comparator CI run while the proof remains open. It is not
-the Bombieri-Vinogradov theorem. The exact target proposition already lives in
-`BombieriVinogradov/Definitions/Statement.lean`; the Challenge/Solution surface
-will be activated only after a proof of that proposition exists.
+## Status
 
-The release state is visible mechanically:
+The exact theorem is proved. `Challenge.lean` contains the deliberate Palomar
+statement hole and imports only Mathlib. `Solution.lean` exports the identical
+declaration type and closes it with
+`BombieriVinogradov.PrimeCountingConversion.weighted_to_prime_counting`.
 
-- while `formalization.yaml` contains the canonical `TEMPLATE:` sentinels, CI
-  validates the starter surface but the repository is not submission-ready;
-- after the real metadata and Challenge/Solution surface replace every
-  sentinel, CI enforces the ordinary Palomar metadata contract.
+The formal proof includes:
+
+- an additive large sieve and primitive character reduction, with explicit
+  character-large-sieve coefficient `36`;
+- a finite Vaughan identity whose sign and cutoff convention were checked
+  against the coefficient algebra;
+- a real-endpoint Vaughan mean-value theorem with explicit coefficient
+  `200000`;
+- a character-form Siegel-Walfisz theorem with one absolute exponential rate;
+- a globally centered maximal von Mangoldt Bombieri-Vinogradov estimate;
+- prime-power removal and equality-safe reciprocal-log Abel summation;
+- logarithmic absorption of the averaged prime-power error for every
+  `theta < 1/2`, including bounded real endpoints.
+
+The project proof uses only `propext`, `Classical.choice`, and `Quot.sound`.
+No numerical certificate or stronger prime number theorem is used to close the
+headline result.
 
 ## Repository map
 
-- `Challenge.lean` — small human-auditable statement surface.
-- `Solution.lean` — corresponding proved declarations.
-- `BombieriVinogradov/` — proof development.
-- `comparator.json` — exact Challenge/Solution declarations and axiom boundary.
-- `formalization.yaml` — Palomar/community metadata, sources, fidelity, and
-  review disclosure.
-- `paper/` — public research paper source.
-- `scripts/` — reproducible build, lint, experiment, certificate, and Palomar
-  verification tools.
-- `data/` — only reasonably sized data that is relevant and reproducible.
+- `Challenge.lean` - Mathlib-only advertised statement.
+- `Solution.lean` - proved declaration with the same exported type.
+- `BombieriVinogradov/Definitions/` - stable mathematical interfaces.
+- `BombieriVinogradov/Helpers/` - reusable analytic and algebraic lemmas.
+- `BombieriVinogradov/Proof/` - independent proof branches.
+- `BombieriVinogradov/Assembly/` - low-complexity theorem composition.
+- `comparator.json` - exact declaration pairs and permitted axiom boundary.
+- `formalization.yaml` - Palomar metadata, source fidelity, and review status.
+- `paper/research-paper.tex` - public mathematical account.
+- `scripts/` - reproducible checks, documentation, and release packaging.
 
-Local research context and AI working files are intentionally ignored and never
-part of the public repository history.
+Local research records, AI instructions, literature copies, and disposable
+proof probes are ignored and are not part of the public history.
 
-## Build and checks
+## Build and verification
 
 Install Git, Python 3.11+, Ruby, and `elan`, then run:
 
 ```text
 python scripts/check.py --profile research
 ```
-
-That checks the public-file boundary, Lean source policy, Python formatting,
-lint, strict typing, tests, Palomar metadata mode, and the Lean build.
 
 Before release, run:
 
@@ -60,56 +75,28 @@ python scripts/check.py --profile release
 ./scripts/verify-comparator.sh
 ```
 
-The Comparator command requires a supported Linux host with Git, Go, Ruby,
-Rust/Cargo, Python, and Landrun. GitHub CI runs the pinned verifier stack.
-It pins the reviewed upstream `leanprover/lean4export` v4.33.0 source and
-compiles that source unchanged with this repository's exact Lean v4.33.1
-toolchain via `ELAN_TOOLCHAIN`. This is the known-good Robin1984 Palomar
-configuration and keeps the exporter aligned with this repository's `.olean`
-format without a fork or machine-local patch.
+The verifier uses the reviewed Lean 4.33.1-compatible `lean4export` source,
+the pinned Comparator, NanoDa replay, and the Lean default kernel. The boundary
+audit checks elaborated declaration types and dependencies, not only source
+text. Every generated shell script is tracked with executable mode.
 
 ## Releases
 
-`RELEASE_VERSION` contains the semantic version for the next completed
-release. CI checks its format and tag collision before the long Lean build.
-Research-mode repositories containing `TEMPLATE:` metadata never publish a
-release. Once the real metadata and theorem surface are complete, a successful
-`main` run publishes exactly three assets after every gate passes: the paper
-PDF, a Linux `.lake/build` archive with project licensing, and an offline API
-documentation ZIP with Lean and pinned-dependency notices. Reruns verify an
-existing release at the same commit instead of duplicating it.
+`RELEASE_VERSION` contains the semantic version for the next release. A
+successful release workflow is gated on the complete Lean build, metadata and
+provenance checks, paper, offline documentation, Comparator, NanoDa, the Lean
+default kernel, and source-only licensing smoke tests. It publishes exactly
+the paper PDF, a Linux `.lake/build` archive, and an offline documentation ZIP.
 
-## Paper
+## Paper and licensing
 
-The paper should state the exact mathematical result, its significance, source
-relationship, proof architecture, formalization trust boundary, computation or
-certificate coverage, limitations, automation disclosure, and actual review
-status. Every theorem presented as proved must map to a kernel-checked Lean
-declaration.
-
-Its project-authored source and rendered PDF are dual-licensed under
-Apache-2.0 or CC-BY-4.0, at the recipient's option. The repository's default
-metadata licence remains Apache-2.0.
+The paper gives the source history, proof architecture, declaration ledger,
+trust boundary, divergences, and review status. Its project-authored TeX source
+and rendered PDF are available under `Apache-2.0 OR CC-BY-4.0`. The repository
+default remains Apache-2.0. See [LICENSING.md](LICENSING.md) for the scope and
+third-party exclusions.
 
 ## Palomar
 
-Development may begin in this public repository so GitHub CI is available from
-the outset. Submit only after the full release profile passes at a clean commit,
-that exact 40-character SHA is pushed, and the current
-[Palomar submission policy](https://github.com/PalomarRegistry/PalomarPolicy/blob/main/CONTRIBUTING.md)
-has been reviewed. Use the
-[Palomar submission form](https://submit.palomar-registry.org/) only for the
-verified commit.
-
-A successful Lean build, Comparator check, NanoDa replay, or automated review
-does not by itself establish novelty, source fidelity, mathematical
-significance, or independent expert review.
-
-## Licence
-
-The repository's original material is licensed under
-[Apache License 2.0](LICENSE) by default. The research paper is additionally
-available under CC-BY-4.0, at the recipient's option. Mathematical provenance,
-cited papers, supplied literature, dependencies, and generated archives are
-covered by [LICENSING.md](LICENSING.md); this project does not claim ownership
-of mathematical results or relicense third-party material.
+Submit only a clean, pushed commit whose release profile and pinned replays all
+pass. The submission metadata does not claim independent expert review.
