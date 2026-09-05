@@ -82,6 +82,8 @@ try {
   & (Join-Path $repositoryRoot 'scripts/prepare-release-licensing.ps1') `
     -DestinationRoot $buildRoot
   foreach ($required in @(
+    (Join-Path $buildRoot 'LICENSE'),
+    (Join-Path $buildRoot 'LICENSING.md'),
     (Join-Path $buildRoot 'licensing/index.html'),
     (Join-Path $buildRoot 'licensing/BombieriVinogradov-Apache-2.0.txt'),
     (Join-Path $buildRoot 'licensing/BombieriVinogradov-LICENSING.md')

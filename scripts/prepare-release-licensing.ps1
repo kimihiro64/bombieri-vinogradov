@@ -36,6 +36,18 @@ if (Test-Path -LiteralPath $licensingFullPath) {
 }
 New-Item -ItemType Directory -Path $licensingFullPath | Out-Null
 
+$projectLicenseSource = Join-Path $repositoryRoot 'LICENSE'
+$projectScopeSource = Join-Path $repositoryRoot 'LICENSING.md'
+foreach ($source in @($projectLicenseSource, $projectScopeSource)) {
+  if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+    throw "Required project licensing source is missing: $source"
+  }
+}
+Copy-Item -LiteralPath $projectLicenseSource `
+  -Destination (Join-Path $destination 'LICENSE') -Force
+Copy-Item -LiteralPath $projectScopeSource `
+  -Destination (Join-Path $destination 'LICENSING.md') -Force
+
 $projectLicenseName = "$projectStem-Apache-2.0.txt"
 $projectScopeName = "$projectStem-LICENSING.md"
 Copy-Item -LiteralPath (Join-Path $repositoryRoot 'LICENSE') `

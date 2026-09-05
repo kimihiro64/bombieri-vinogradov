@@ -476,6 +476,37 @@ jobs:
             zstd -T0 -10 -q \
               -o "release-assets/bombieri-vinogradov-linux-lean-$RELEASE_TAG.tar.zst"
 
+          mapfile -t build_entries < <(
+            tar --use-compress-program=unzstd -tf \
+              "release-assets/bombieri-vinogradov-linux-lean-$RELEASE_TAG.tar.zst" |
+              sed -e 's#\\#/#g' -e 's#^\./##'
+          )
+          for entry in "${build_entries[@]}"; do
+            case "$entry" in
+              /*|[A-Za-z]:/*|../*|*/../*)
+                echo "::error::Unsafe Lean archive entry: $entry"
+                exit 1
+                ;;
+            esac
+          done
+          for required in \
+            LICENSE \
+            LICENSING.md \
+            lib/lean/Challenge.olean \
+            lib/lean/Solution.olean
+          do
+            count=0
+            for entry in "${build_entries[@]}"; do
+              if [[ "$entry" == "$required" ]]; then
+                count=$((count + 1))
+              fi
+            done
+            if [[ "$count" -ne 1 ]]; then
+              echo "::error::Lean archive contains $count copies of $required"
+              exit 1
+            fi
+          done
+
           test "$(find release-assets -maxdepth 1 -type f | wc -l)" -eq 3
           sha256sum release-assets/* > release-assets.sha256
           {
