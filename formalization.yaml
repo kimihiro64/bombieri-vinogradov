@@ -73,9 +73,9 @@ related_formalizations:
   - id: "https://github.com/kimihiro64/Robin1984/commit/bfa72aec0c25c8ee29cefe4449d778ff30412bee"
     relationship: "builds-on"
     note: "Provides the Riemann-xi divisor and logarithmic-derivative results used in the zero-free branch."
-  - id: "https://github.com/kimihiro64/PrimeNumberTheoremAnd/commit/f8f58c749d6cde8a641348fcd5e4702993651cd6"
+  - id: "https://github.com/kimihiro64/PrimeNumberTheoremAnd/commit/0f15a38c619298b5cd786d39a84dd4bb8997324c"
     relationship: "builds-on"
-    note: "Provides prime-counting definitions and analytic-number-theory infrastructure."
+    note: "Provides the Lean 4.33.1 module-compatible prime-counting and analytic-number-theory infrastructure used by the build."
 
 status:
   scope: >-
