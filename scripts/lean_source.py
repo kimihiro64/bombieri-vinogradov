@@ -22,10 +22,46 @@ BROAD_IMPORT: Final[re.Pattern[str]] = re.compile(r"(?m)^\s*import\s+(?:Batterie
 AUTO_IMPLICIT_FALSE: Final[re.Pattern[str]] = re.compile(
     r"(?m)^\s*set_option\s+autoImplicit\s+false\s*$"
 )
+REVIEWED_NOLINT_CLASSES: Final[frozenset[str]] = frozenset(
+    {"docBlame", "simpNF", "unusedArguments"}
+)
 
 
 class LeanSourceError(RuntimeError):
     """Raised when Lean source or a Palomar boundary violates policy."""
+
+
+def check_nolints_baseline(root: Path) -> None:
+    """Validate the reviewed declaration-level Lean linter migration baseline."""
+    path = root / "scripts" / "nolints.json"
+    try:
+        baseline = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise LeanSourceError(f"Lean nolint baseline cannot be read: {error}") from error
+
+    failures: list[str] = []
+    if not isinstance(baseline, list) or not baseline:
+        failures.append("scripts/nolints.json must be a nonempty JSON list")
+    else:
+        seen: set[tuple[str, str]] = set()
+        for index, row in enumerate(baseline):
+            if (
+                not isinstance(row, list)
+                or len(row) != 2
+                or not all(isinstance(item, str) and item.strip() for item in row)
+            ):
+                failures.append(f"row {index} must contain two nonempty strings")
+                continue
+            linter, declaration = row
+            key = (linter, declaration)
+            if key in seen:
+                failures.append(f"duplicate row {index}: {linter} / {declaration}")
+            seen.add(key)
+            if linter not in REVIEWED_NOLINT_CLASSES:
+                failures.append(f"row {index} uses unreviewed linter class {linter}")
+    if failures:
+        raise LeanSourceError("Lean nolint baseline failed:\n" + "\n".join(failures))
+    print(f"Lean nolint baseline: clean ({len(baseline)} reviewed declarations)")
 
 
 def strip_lean_comments(source: str) -> str:

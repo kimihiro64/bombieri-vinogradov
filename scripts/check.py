@@ -18,6 +18,7 @@ if __package__ in {None, ""}:
 from scripts.lean_source import (  # noqa: E402
     LeanSourceError,
     check_lean_sources,
+    check_nolints_baseline,
     check_palomar_boundary,
 )
 
@@ -234,6 +235,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
         check_documentation_manifest(root)
         check_submission_link(root)
         check_lean_sources(root, public_candidate_paths(root))
+        check_nolints_baseline(root)
         check_palomar_boundary(root)
         check_architecture(root)
         check_metadata(root, release=options.profile == "release")

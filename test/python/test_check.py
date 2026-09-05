@@ -17,6 +17,7 @@ from scripts.import_graph import detect_cycles, transitive_dependents
 from scripts.lean_source import (
     LeanSourceError,
     check_lean_sources,
+    check_nolints_baseline,
     check_palomar_boundary,
     lean_imports,
     strip_lean_comments,
@@ -121,6 +122,45 @@ def test_submission_link_ignores_untracked_binary_markdown(tmp_path: Path) -> No
     subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
     (tmp_path / "generated.md").write_bytes(b"generated\xffartifact")
     check_submission_link(tmp_path)
+
+
+def write_nolint_fixture(tmp_path: Path, rows: object) -> None:
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    (scripts / "nolints.json").write_text(json.dumps(rows), encoding="utf-8")
+
+
+def test_nolint_baseline_accepts_reviewed_unique_rows(tmp_path: Path) -> None:
+    write_nolint_fixture(
+        tmp_path,
+        [["docBlame", "Project.a"], ["simpNF", "Project.b"]],
+    )
+    check_nolints_baseline(tmp_path)
+
+
+@pytest.mark.parametrize(
+    "rows, diagnostic",
+    [
+        pytest.param([], "nonempty JSON list", id="empty"),
+        pytest.param([["docBlame"]], "two nonempty strings", id="malformed"),
+        pytest.param(
+            [["docBlame", "Project.a"], ["docBlame", "Project.a"]],
+            "duplicate row",
+            id="duplicate",
+        ),
+        pytest.param(
+            [["futureLinter", "Project.a"]],
+            "unreviewed linter class",
+            id="unreviewed-class",
+        ),
+    ],
+)
+def test_nolint_baseline_rejects_unreviewed_rows(
+    tmp_path: Path, rows: object, diagnostic: str
+) -> None:
+    write_nolint_fixture(tmp_path, rows)
+    with pytest.raises(LeanSourceError, match=diagnostic):
+        check_nolints_baseline(tmp_path)
 
 
 def write_boundary_fixture(tmp_path: Path, challenge_import: str) -> None:
