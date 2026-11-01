@@ -168,7 +168,7 @@ jobs:
       - name: Run the Lean linters
         run: lake lint
       - name: Upload the completed Lean build
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: linux-lean-build
           path: .lake/build
@@ -212,7 +212,7 @@ jobs:
       - name: Prepare the offline documentation and licensing bundle
         shell: pwsh
         run: ./scripts/prepare-api-docs.ps1 -DocumentationRoot docbuild/.lake/build/doc
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: api-documentation
           path: docbuild/.lake/build/doc
@@ -325,7 +325,7 @@ jobs:
           then
             exit 1
           fi
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: research-paper
           path: paper/build/research-paper.pdf
